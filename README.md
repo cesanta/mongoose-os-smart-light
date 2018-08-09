@@ -59,23 +59,7 @@ Device management backend is mDash (the same that runs on
 https://dash.mongoose-os.com), the frontend is a PWA (progressive web app).
 Both are behind Nginx, which terminates SSL from devices and mobile apps.
 
-```
-                                        ┌──────────────────────┬──────────┐
-                                        │  Database (metrics)  │          │
-     .                                  ├──────────────────────┤ FRONTEND │
-LED ( )                                 │   BACKEND (mDash)    │   (PWA)  │
- ┌───'───────┐ Secure WebSocket (WSS)   ├──────────────────────┴──────────┤
- │  DEVICE   │──────────────────────────│              NGINX              │
- └───────────┘                          └─────────────────────────────────┘
-                          ┌┐   REST    ╱              ┌───────────────────┐
-                      ┌───┴┴┐ (HTTPS) ╱               │ ┌───────────────┐ │
-          Progressive │ ┌─┐ │        ╱                │ │     Your      │ │
-            Web App   │ │ │ │ ──────/                 │ │  workstation  │ │
-             (PWA)    │ │ │ │                         │ └───────────────┘ │
-                      │ └─┘ │                         └────────┬─┬────────┘
-                      └─────┘                              ┌───┴─┴───┐     
-                                                           └─────────┘       
-```
+<img src="media/a1.png" class="mw-100" />
 
 ## Backend
 
