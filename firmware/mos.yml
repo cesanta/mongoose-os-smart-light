@@ -1,0 +1,13 @@
+author: mongoose-os
+description: Smart Light full product example
+version: 1.0
+manifest_version: 2017-05-18
+tags:
+  - c
+sources:
+  - src
+config_schema:
+  - ["dash.enable", true]
+  - ["dash.server", "1.2.3.4:1234"]
+libs:
+  - origin: https://github.com/mongoose-os-libs/demo-bundle

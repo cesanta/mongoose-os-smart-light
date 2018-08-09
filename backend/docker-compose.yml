@@ -1,0 +1,19 @@
+version: '2'
+services:
+  nginx:
+    image: docker.io/mgos/nginx
+    volumes:
+      - ./data:/data
+      - ./mobile-app:/mobile-app
+    ports:
+      - "8008:8008"
+    command: nginx -c /data/nginx.conf
+    # links:
+    #   - dash
+
+  # dash:
+  #   image: docker.io/mgos/dash
+  #   volumes:
+  #   ports:
+  #     - "8001:8001"
+  #   command:

@@ -1,0 +1,15 @@
+{
+  "short_name": "mos smart light",
+  "name": "Mongoose OS smart light full IoT product example",
+  "icons": [
+    {
+      "src": "/images/logo-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "theme_color": "#db7093",
+  "background_color": "#222222",
+  "display": "standalone"
+}

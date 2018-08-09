@@ -1,4 +1,4 @@
-# Full IoT product example
+# Full IoT product: smart light on Mongoose OS
 
 This repository contains the implementation of the full, functional commercial IoT product.
 It utilises the power of [Mongoose OS](https://mongoose-os.com) and can be used as a reference for creating other similar products.
