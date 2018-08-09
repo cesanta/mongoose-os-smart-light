@@ -13,7 +13,34 @@ This short video demonstrates the use case:
 
 TBD
 
-## Architecture
+## Step-by-step usage guide
+
+## General Architecture
+
+The backend is installed on your workstation (so called on-premises
+installation). It is completely self-contained, not requiring any external
+service to run, and run as a collection of Docker images (docker-compose).
+Device management backend is mDash (the same that runs on
+https://dash.mongoose-os.com), the frontend is a PWA (progressive web app).
+Both are behind Nginx, which terminates SSL from devices and mobile apps.
+
+```
+                                        ┌──────────────────────┬──────────┐
+                                        │  Database (metrics)  │          │
+     .                                  ├──────────────────────┤ FRONTEND │
+LED ( )                                 │   BACKEND (mDash)    │   (PWA)  │
+ ┌───'───────┐ Secure WebSocket (WSS)   ├──────────────────────┴──────────┤
+ │  DEVICE   │──────────────────────────│              NGINX              │
+ └───────────┘                          └─────────────────────────────────┘
+                          ┌┐   REST    ╱              ┌───────────────────┐
+                      ┌───┴┴┐ (HTTPS) ╱               │ ┌───────────────┐ │
+          Progressive │ ┌─┐ │        ╱                │ │     Your      │ │
+            Web App   │ │ │ │ ──────/                 │ │  workstation  │ │
+             (PWA)    │ │ │ │                         │ └───────────────┘ │
+                      │ └─┘ │                         └────────┬─┬────────┘
+                      └─────┘                              ┌───┴─┴───┐     
+                                                           └─────────┘       
+```
 
 ## Backend
 
