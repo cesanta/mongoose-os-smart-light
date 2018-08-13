@@ -1,0 +1,3 @@
+* { outline: none !important; }
+.btn, input[type="text"], input[type="password"], textarea { outline: none; box-shadow:none !important; border: 1px
+    solid #ccc !important; }

@@ -6,33 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mongoose OS Smart Light</title>
-  <link rel="stylesheet" type="text/css" href="css/inline.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/toggle.css">
 </head>
 
 <body>
-  <header class="header">
-    <h1 class="header__title">Mongoose OS Smart Light</h1>
-    <button id="butRefresh" class="headerButton"></button>
-    <button id="butAdd" class="headerButton"></button>
-  </header>
-
-  <main class="main">
-    <div class="card cardTemplate weather-forecast" hidden>
-      foo
-    </div>
-  </main>
-
-  <div class="dialog-container">
-    bar
-  </div>
-
-  <div class="loader">
-    <svg viewBox="0 0 32 32" width="32" height="32">
-      <circle id="spinner" cx="16" cy="16" r="14" fill="none"></circle>
-    </svg>
-  </div>
-
-  <!-- Insert link to app.js here -->
+  <script src="js/babel.min.js"></script>
+  <script src="js/preact.min.js"></script>
+  <script src="js/preact-router.min.js"></script>
+  <script src="js/history.min.js"></script>
+  <script type="text/babel" src="js/app.jsx"></script>
 </body>
 
 </html>
