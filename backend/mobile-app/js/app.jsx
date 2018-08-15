@@ -102,9 +102,9 @@ class App extends Component {
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />
         <Router history={createHashHistory()} onChange={e => { this.currentUrl = e.url }}>
-          <Login default path="/" />
-          <Signup path="/signup" title="Sign Up" />
-          <DeviceList path="/devices" title="Device List" />
+          {/* <Login default path="/" /> */}
+          {/* <Signup path="/signup" title="Sign Up" /> */}
+          <DeviceList path="/" default title="Device List" />
         </Router>
       </div >
     )

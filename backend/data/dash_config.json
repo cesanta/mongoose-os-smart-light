@@ -2,6 +2,7 @@
   "admin_users": [
     "email_admin"
   ],
+  "db": "/data/dash_db.json",
   "email_auth": true,
   "web_root": "/web_root"
 }

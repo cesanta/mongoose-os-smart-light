@@ -6,16 +6,27 @@ services:
       - ./data:/data
       - ./mobile-app:/mobile-app
     ports:
-      - "8008:8008"
+      - 8008:8008
     depends_on:
       - dash
     command: nginx -c /data/nginx.conf
+
+  api-server:
+    build: ./api-server
+    volumes:
+      - ./data:/data
+      - ./api-server:/api-server
+    ports:
+      - 8002:8002
+    # command: node /main.js --port 8002 --dash dash:8001 --token 8528d68325619233205dd94c1586fdf5
+    command: sh -c 'cd /api-server && (test -d node_modules || npm install) && ./node_modules/.bin/supervisor -t -- main.js --port 8002 --dash dash:8001 --token 8528d68325619233205dd94c1586fdf5'
+
 
   dash:
     image: docker.io/mgos/dash
     volumes:
     ports:
-      - "8001:8001"
+      - 8001:8001
     volumes:
       - ./data:/data
       # - /etc/ssl:/etc/ssl:ro
