@@ -72,6 +72,11 @@ const Signup = () => (
       type="password"
       className="form-control mb-2 login-input-password"
       placeholder="Password"
+    />
+    <input
+      type="password"
+      className="form-control mb-2 login-input-password"
+      placeholder="Repeat Password"
       onChange={() => document.querySelector('.login-input-submit').click()}
     />
     <button

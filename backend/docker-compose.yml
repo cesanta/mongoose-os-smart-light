@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   nginx:
     image: docker.io/mgos/nginx
@@ -7,13 +7,17 @@ services:
       - ./mobile-app:/mobile-app
     ports:
       - "8008:8008"
+    depends_on:
+      - dash
     command: nginx -c /data/nginx.conf
-    # links:
-    #   - dash
 
-  # dash:
-  #   image: docker.io/mgos/dash
-  #   volumes:
-  #   ports:
-  #     - "8001:8001"
-  #   command:
+  dash:
+    image: docker.io/mgos/dash
+    volumes:
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./data:/data
+      # - /etc/ssl:/etc/ssl:ro
+      # - /usr/share/ca-certificates:/usr/share/ca-certificates:ro
+    command: /dash --config-file /data/dash_config.json
