@@ -63,6 +63,17 @@ Both are behind Nginx, which terminates SSL from devices and mobile apps.
 
 ## Backend
 
+The mDash comes pre-configured with a single administrator user, `admin`
+with a password admin. That was done with the following command:
+
+```
+docker-compose run dash /dash --config-file /data/dash_config.json --register-user admin admin
+```
+
+The resulting `backend/data/dash_db.json` mDash database was committed to
+the repo. The API key, automatically created for the admin user, is used
+by the API Server for all API Server <-> mDash communication.
+
 ## Frontend
 
 ## Device provisioning process

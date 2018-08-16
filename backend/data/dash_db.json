@@ -1,0 +1,24 @@
+{
+  "users": {
+    "email_admin": {
+      "id": "email_admin",
+      "name": "admin",
+      "token": "$2a$10$D4ShbDtNOEwPeAEq/MhVa.8QjBQ.Ent79wM1JwwgalxjshkNKSDA2",
+      "avatar_url": "",
+      "created_at": "2018-08-16T14:40:06.16072317Z",
+      "plan": "",
+      "device_count_limit": 2,
+      "log_days_limit": 2
+    }
+  },
+  "devices": {},
+  "apikeys": {
+    "6de9f99d839f1e981138d6ff": {
+      "id": "6de9f99d839f1e981138d6ff",
+      "user_id": "email_admin",
+      "created_at": "2018-08-16T14:40:06.16072317Z",
+      "last_used": "0001-01-01T00:00:00Z"
+    }
+  },
+  "billings": {}
+}
