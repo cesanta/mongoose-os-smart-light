@@ -11,7 +11,7 @@ const Header = () => (
 
 const DeviceList = ({ }) => (
   <div>
-    <h3>My devices <a className="ml-3 btn btn-danger text-white">Add</a></h3>
+    <h3 className="mb-3">My devices <a className="ml-3 btn btn-danger text-white float-right">Add device</a></h3>
     <ul className="list-group">
       <li className="list-group-item">device 1
       <div className="onoffswitch d-inline-block ml-4">
@@ -27,83 +27,15 @@ const DeviceList = ({ }) => (
   </div>
 );
 
-const Login = () => (
-  <div className="mt-5">
-    <input
-      type="text"
-      className="form-control mb-2 login-input-email"
-      placeholder="Email"
-    />
-    <input
-      type="password"
-      className="form-control mb-2 login-input-password"
-      placeholder="Password"
-      onChange={() => document.querySelector('.login-input-submit').click()}
-    />
-    <button
-      className="btn btn-danger btn-block mb-1 login-input-submit"
-      onClick={() => {
-        const email = document.querySelector('.login-input-email');
-        const password = document.querySelector('.login-input-password');
-        const ev = email.value;
-        const pv = password.value;
-        email.value = '';
-        password.value = '';
-        dash.login(ev, pv).then(() => route('/'));
-      }}
-    >
-      Sign In
-    </button>
-    <hr />
-    Not registered yet? Please <a href="/signup">Sign Up</a>
-  </div>
-);
-
-const Signup = () => (
-  <div>
-    <div className="my-2  "><a href="/">&larr; back to login</a></div>
-
-    <input
-      type="text"
-      className="form-control mb-2 login-input-email"
-      placeholder="Email"
-    />
-    <input
-      type="password"
-      className="form-control mb-2 login-input-password"
-      placeholder="Password"
-    />
-    <input
-      type="password"
-      className="form-control mb-2 login-input-password"
-      placeholder="Repeat Password"
-      onChange={() => document.querySelector('.login-input-submit').click()}
-    />
-    <button
-      className="btn btn-danger btn-block mb-1 login-input-submit"
-      onClick={() => {
-        const email = document.querySelector('.login-input-email');
-        const password = document.querySelector('.login-input-password');
-        const ev = email.value;
-        const pv = password.value;
-        email.value = '';
-        password.value = '';
-        dash.login(ev, pv).then(() => route('/'));
-      }}
-    >
-      Sign Up
-    </button>
-  </div>
-);
-
 class App extends Component {
+  componentDidMount() {
+    this.ws = util.wsconnect();
+  }
   render({ }, { }) {
     return (
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />
         <Router history={createHashHistory()} onChange={e => { this.currentUrl = e.url }}>
-          {/* <Login default path="/" /> */}
-          {/* <Signup path="/signup" title="Sign Up" /> */}
           <DeviceList path="/" default title="Device List" />
         </Router>
       </div >
