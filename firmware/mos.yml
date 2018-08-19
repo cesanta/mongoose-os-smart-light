@@ -7,7 +7,21 @@ tags:
 sources:
   - src
 config_schema:
-  - ["dash.enable", true]
-  - ["dash.server", "1.2.3.4:1234"]
+  - ["dns_sd.enable", true]
+  - ["dns_sd.host_name", "MongooseOS-????"]
+  - ["wifi.ap.ssid", "MongooseOS-????"]
+  - ["wifi.ap.pass", ""]
 libs:
-  - origin: https://github.com/mongoose-os-libs/demo-bundle
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+  - origin: https://github.com/mongoose-os-libs/core
+  - origin: https://github.com/mongoose-os-libs/dash
+  - origin: https://github.com/mongoose-os-libs/dns-sd
+  - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/provision
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-service-ota
+  - origin: https://github.com/mongoose-os-libs/rpc-service-wifi
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/ota-shadow
+  - origin: https://github.com/mongoose-os-libs/wifi
