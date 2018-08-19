@@ -9,10 +9,26 @@
       "plan": "",
       "device_count_limit": 2,
       "log_days_limit": 2
+    },
+    "email_mos_app_tpfhhm0lf": {
+      "id": "email_mos_app_tpfhhm0lf",
+      "name": "mos_app_tpfhhm0lf",
+      "token": "$2a$10$RfDeRn2wu9PkfRm7avTJAeJfTdhhADBi0H4u.idI.CrKTIyWq7F8.",
+      "avatar_url": "",
+      "created_at": "2018-08-17T14:17:25.384197329Z",
+      "plan": "",
+      "device_count_limit": 2,
+      "log_days_limit": 2
     }
   },
   "devices": {},
   "apikeys": {
+    "40b3ab1e9e4372bbea7cb185": {
+      "id": "40b3ab1e9e4372bbea7cb185",
+      "user_id": "email_mos_app_tpfhhm0lf",
+      "created_at": "2018-08-17T14:17:25.384197329Z",
+      "last_used": "0001-01-01T00:00:00Z"
+    },
     "6de9f99d839f1e981138d6ff": {
       "id": "6de9f99d839f1e981138d6ff",
       "user_id": "email_admin",

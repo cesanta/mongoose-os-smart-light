@@ -7,6 +7,7 @@ services:
       - ./mobile-app:/mobile-app
     ports:
       - 8008:8008
+      - 8009:8009
     depends_on:
       - dash
     command: nginx -c /data/nginx.conf
@@ -18,8 +19,8 @@ services:
       - ./api-server:/api-server
     ports:
       - 8002:8002
-    # command: node /main.js --port 8002 --dash dash:8001 --token 8528d68325619233205dd94c1586fdf5
-    command: sh -c 'cd /api-server && (test -d node_modules || npm install) && ./node_modules/.bin/supervisor -t -- main.js --port 8002 --dash dash:8001 --token 8528d68325619233205dd94c1586fdf5'
+    # command: node /main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff
+    command: sh -c 'cd /api-server && (test -d node_modules || npm install) && ./node_modules/.bin/supervisor -t -- main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff'
 
 
   dash:
