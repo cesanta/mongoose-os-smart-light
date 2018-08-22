@@ -44,5 +44,30 @@ var util = {
     };
     reconnect();
     return wrapper;
+  },
+  xhr: function(method, url, data, timeoutMs) {
+    return new Promise(function(resolve, reject) {
+      const req = new XMLHttpRequest();
+      req.open(method, url, true);
+      if (timeoutMs) req.timeout = timeoutMs;
+      req.onreadystatechange = function() {
+        if (req.readyState < 4) return;
+        if (req.status === 200 && req.readyState === 4) {
+          try {
+            resolve(JSON.parse(req.responseText));
+          } catch (e) {
+            resolve(req.responseText);
+          }
+        } else if (req.status === 401) {
+          reject(req.responseText, req.status);
+        } else if (req.readyState === 4) {
+          reject(req.responseText, req.status);
+        }
+      };
+      req.onerror = function() {
+        reject(req.statusText, req.status);
+      };
+      req.send(data);
+    })
   }
 }

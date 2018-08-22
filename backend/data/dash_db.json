@@ -20,10 +20,20 @@
       "device_count_limit": 2,
       "log_days_limit": 2
     },
+    "email_mos_app_rzdg6us6i": {
+      "id": "email_mos_app_rzdg6us6i",
+      "name": "mos_app_rzdg6us6i",
+      "token": "$2a$10$U9Y.FgPOY1lLurD3GHFXEePh9chrLfwMJDXTivaMZ8euD3ctjAOhi",
+      "avatar_url": "",
+      "created_at": "2018-08-21T12:57:15.575344888Z",
+      "plan": "",
+      "device_count_limit": 2,
+      "log_days_limit": 2
+    },
     "email_mos_app_tpfhhm0lf": {
       "id": "email_mos_app_tpfhhm0lf",
       "name": "mos_app_tpfhhm0lf",
-      "token": "$2a$10$V9iJe3anEJkVuuu9dtJvi.ZyoqlT4cvdlffBfOT/mbS5Z0Xj8/dDS",
+      "token": "$2a$10$TwP7/IZom9H8RftlGKLfo.Mszl.kCRdZ2Ak/pMpL3CqZUV14VafLe",
       "avatar_url": "",
       "created_at": "2018-08-17T14:17:25.384197329Z",
       "plan": "",
@@ -33,7 +43,7 @@
     "email_mos_app_yl3qxbdu3": {
       "id": "email_mos_app_yl3qxbdu3",
       "name": "mos_app_yl3qxbdu3",
-      "token": "$2a$10$WvRUPFFCx/0GMJhjPS2.jekITcmRlsTGDyLpP4GhNYxvKw0ktaTma",
+      "token": "$2a$10$lZrF5CcIFGdZ6HkLKglUzOwzp78rtuJ3YDlBjEkgYjklE5tKSEs7e",
       "avatar_url": "",
       "created_at": "2018-08-19T16:18:58.483273386Z",
       "plan": "",
@@ -53,6 +63,12 @@
       "id": "40b3ab1e9e4372bbea7cb185",
       "user_id": "email_mos_app_tpfhhm0lf",
       "created_at": "2018-08-17T14:17:25.384197329Z",
+      "last_used": "0001-01-01T00:00:00Z"
+    },
+    "5b810da9aa4df1a805f0f484": {
+      "id": "5b810da9aa4df1a805f0f484",
+      "user_id": "email_mos_app_rzdg6us6i",
+      "created_at": "2018-08-21T12:57:15.575344888Z",
       "last_used": "0001-01-01T00:00:00Z"
     },
     "6de9f99d839f1e981138d6ff": {

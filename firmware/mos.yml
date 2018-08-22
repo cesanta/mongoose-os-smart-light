@@ -8,8 +8,9 @@ sources:
   - src
 config_schema:
   - ["dns_sd.enable", true]
-  - ["dns_sd.host_name", "MongooseOS-????"]
-  - ["wifi.ap.ssid", "MongooseOS-????"]
+  - ["dns_sd.host_name", "MongooseOS-??????"]
+  - ["wifi.ap.ssid", "MongooseOS-??????"]
+  - ["device.id", "MongooseOS-??????"]
   - ["wifi.ap.pass", ""]
 libs:
   - origin: https://github.com/mongoose-os-libs/ca-bundle
