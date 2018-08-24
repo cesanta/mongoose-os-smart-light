@@ -67,7 +67,12 @@ var util = {
       req.onerror = function() {
         reject(req.statusText, req.status);
       };
-      req.send(data);
+      var body = data;
+      if (data && typeof (data) !== 'string') {
+        req.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+        body = JSON.stringify(data);
+      }
+      req.send(body);
     })
   }
 }

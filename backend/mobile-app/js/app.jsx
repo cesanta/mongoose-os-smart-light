@@ -33,100 +33,83 @@ const DeviceList = ({ }) => (
 
 class AddDeviceStep1 extends Component {
   componentDidMount() {
-    this.setState({ res: null });
+    this.props.setNewDeviceName('');
     this.getDeviceName();
+  }
+  componentWillUnmount() {
+    clearTimeout(this.t);
   }
   getDeviceName() {
     util.xhr('GET', 'http://192.168.4.1/rpc/Config.Get', '', 1000)
-      .then(res => this.setState({ deviceName: res.device.id }))
+      .then(res => this.props.setNewDeviceName(res.device.id))
       .catch((err) => this.setState({ res: { error: err, ts: Date.now() } }));
-    if (!this.state.deviceName) setTimeout(() => this.getDeviceName(), 1000);
+    if (!this.props.newDeviceName) this.t = setTimeout(() => this.getDeviceName(), 1000);
   }
-  render({ }, { res, deviceName }) {
+  render({ newDeviceName }, { }) {
     return (
       <div>
         <div><a href="/">&larr; back to device list</a></div>
-        <div className="my-3 alert alert-secondary text-muted small">
+        <div className="my-3 alert alert-info text-muted small">
           Go to your mobile phone settings
           and join the WiFi network "MongooseOS-????".
           Wait until connected, then press the button.
         </div>
-        <div className="my-3 alert alert-light text-muted small">
-          {JSON.stringify([res, deviceName])}
+        <div className="my-3 alert alert-warning text-muted small d-none">
+          {JSON.stringify([this.state, this.props, newDeviceName])}
         </div>
-        <h4>Step 1: connect to device</h4>
-        <a
-          className={`btn btn-danger btn-block mb-1 ${deviceName ? '' : 'disabled'}`}
-          href="/add2"
-          disabled={!deviceName}
-          onClick={() => {
-            const email = document.querySelector('.ssid');
-            const password = document.querySelector('.pass');
-            const ev = email.value;
-            const pv = password.value;
-            email.value = '';
-            password.value = '';
-            dash.login(ev, pv).then(() => route('/'));
-          }}
-        >
-          {
-            deviceName ?
-              `Connected! Next step ->`
-              :
-              <div>
-                <span className="spinner mr-2"></span>
-                Connecting ...
-              </div>
-          }
-
-        </a>
+        <h4>Step 1: Connect to device</h4>
+        {
+          newDeviceName ?
+            <a className="btn btn-danger btn-block mb-1" href="/add2">
+              Connected! Next step ->
+            </a>
+            :
+            <a className="btn btn-danger btn-block mb-1 disabled" disabled>
+              <span className="spinner mr-2"></span>
+              Connecting ...
+            </a>
+        }
       </div>
     )
   }
 };
 
 class AddDeviceStep2 extends Component {
-  componentDidMount() {
-    // this.setState({ res: null });
-    // this.getDeviceName();
-  }
-  render({ }, { deviceName }) {
+  render({ newDeviceName }, { ssid, pass, done, loading, error }) {
     return (
       <div>
-        <div><a href="/step1">&larr; back step1</a></div>
-        <h4>Step 2: set device WiFi</h4>
-        <input
-          type="text"
-          className="form-control mb-2 ssid"
-          placeholder="WiFi network name"
-        />
-        <input
-          type="password"
-          className="form-control mb-2 pass"
-          placeholder="WiFi password"
-        />
+        <div><a href="/step1">&larr; back to step1</a></div>
+        <h4 className="my-3">Step 2: Set device WiFi</h4>
+        <div className="my-3 alert alert-warning text-muted small d-none">
+          {JSON.stringify([this.state, this.props, newDeviceName])}
+        </div>
+        <input type="text" className="form-control mb-2" placeholder="WiFi network name" value={ssid} onInput={e => this.setState({ ssid: e.target.value })} />
+        <input type="password" className="form-control mb-2" placeholder="WiFi password" value={pass} onInput={e => this.setState({ pass: e.target.value })} />
+        <div className={`alert alert-info ${error ? '' : 'd-none'}`}>
+          Error: {JSON.stringify(error)}
+        </div>
         <a
-          className={`btn btn-danger btn-block mb-1 ${deviceName ? '' : 'disabled'}`}
-          href="/add3"
-          disabled={!deviceName}
-          onClick={() => {
-            const email = document.querySelector('.ssid');
-            const password = document.querySelector('.pass');
-            const ev = email.value;
-            const pv = password.value;
-            email.value = '';
-            password.value = '';
-            dash.login(ev, pv).then(() => route('/'));
+          className={`btn btn-danger btn-block mb-1 ${ssid ? '' : 'disabled'}`}
+          disabled={!ssid}
+          href={done ? '/add3' : window.location.hash}
+          onClick={(ev) => {
+            ev.preventDefault;
+            const newConfig = {
+              wifi: {
+                ap: { enable: false },
+                sta: { ssid: ssid, pass: pass, enable: true },
+                http: { enable: false },
+              }
+            };
+            this.setState({ loading: true });
+            util.xhr('POST', 'http://192.168.4.1/rpc/Config.Set', { config: newConfig }, 3000)
+              .then(() => util.xhr('POST', 'http://192.168.4.1/rpc/Config.Save', { reboot: true }, 300))
+              .then(() => this.setState({ done: true, loading: false }))
+              .catch((err) => this.setState({ loading: false, error: err }));
           }}
         >
-          {
-            deviceName ? 'Configure WiFi' :
-              <div>
-                <span className="spinner mr-2"></span>
-                Connecting to device ...
-              </div>
-          }
-
+          <span className={`spinner mr-2 ${loading ? '' : 'd-none'}`}></span>
+          {done ? 'Done! Next step ->' : 'Set device WiFi'}
         </a>
       </div>
     )
@@ -136,16 +119,25 @@ class AddDeviceStep2 extends Component {
 class AddDeviceStep3 extends Component {
   componentDidMount() {
   }
-  render({ }, { deviceName }) {
+  render({ newDeviceName }, { done }) {
     return (
       <div>
-        <div><a href="/add1">&larr; back to step 1</a></div>
+        <div><a href="/add2">&larr; back to step 2</a></div>
         <div className="my-3 alert alert-secondary text-muted small">
           Go to your mobile phone settings
-          and join the WiFi network "MongooseOS-????".
-          Then enter WiFi name/pass and click on the button.
+          and switch back to your local WiFi network.
+          Wait until connected to the device, then click on the button.
         </div>
-        <h4>Step 2. <small>Configure WiFi on a device</small></h4>
+        <h4 className="my-3">Step 3: Register device</h4>
+        {
+          done ?
+            <a className="btn btn-danger btn-block mb-1" href="/"> Done!</a>
+            :
+            <a className="btn btn-danger btn-block mb-1 disabled" disabled>
+              <span className="spinner mr-2"></span>
+              Registering ...
+            </a>
+        }
       </div>
     )
   }
@@ -155,15 +147,15 @@ class App extends Component {
   componentDidMount() {
     this.ws = util.wsconnect();
   }
-  render({ }, { }) {
+  render({ }, { dn }) {
     return (
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />
         <Router history={createHashHistory()} onChange={e => { this.currentUrl = e.url }}>
           <DeviceList path="/" default title="Device List" />
-          <AddDeviceStep1 path="/add1" title="Add 1" />
-          <AddDeviceStep2 path="/add2" title="Add 2" />
-          <AddDeviceStep3 path="/add3" title="Add 3" />
+          <AddDeviceStep1 path="/add1" setNewDeviceName={dn => this.setState({ dn })} newDeviceName={dn} />
+          <AddDeviceStep2 path="/add2" setNewDeviceName={dn => this.setState({ dn })} newDeviceName={dn} />
+          <AddDeviceStep3 path="/add3" setNewDeviceName={dn => this.setState({ dn })} newDeviceName={dn} />
         </Router>
       </div>
     )
