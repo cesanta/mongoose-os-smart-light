@@ -1,7 +1,7 @@
 const Websocket = require('ws');
 const argv = require('minimist')(process.argv.slice(2));
 const httpServer = require('http').createServer();
-const request = require('request');
+const axios = require('axios');
 
 const dashReconnect = () => {
   const addr = `ws://${argv.dash}/api/v2/notify?access_token=${argv.token}`;
@@ -30,33 +30,55 @@ const getCookie = (name, cookie) => {
   return parts.length === 2 ? parts.pop().split(';').shift() : undefined;
 };
 
-const callDash = (uri, data, callback) => {
+const callDash = (uri, options) => {
   const opts = {
-    method: data ? 'POST' : 'GET',
-    auth: {bearer: argv.token, sendImmediately: true},
-    url: `http://${argv.dash}/api/v2${uri}`
+    method: options.method || options.data ? 'POST' : 'GET',
+    transformRequest: data => JSON.stringify(data),
+    headers: {
+      Authorization: `Bearer ${options.token || argv.token}`,
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+    url: `http://${argv.dash}/api/v2${uri}`,
   };
-  if (data) opts.json = data;
+  Object.assign(opts, options);
   console.log('->', JSON.stringify(opts));
-  return request(opts, callback);
+  return axios(opts).catch(err => console.log('Error:', uri, err));
 };
 
 httpServer.listen(argv.port || 8002, () => {
   console.log('Starting API Server on port', argv.port || 8002);
 });
 
-wsServer = new Websocket.Server({server: httpServer});
+const wsServer = new Websocket.Server({server: httpServer});
 wsServer.on('connection', (conn, req) => {
-  var appID = getCookie('app_id', req.headers.cookie);
+  const appID = getCookie('app_id', req.headers.cookie);
   console.log('PWA connected:', req.connection.remoteAddress, ', app:', appID);
   conn.on('close', () => {
     console.log('PWA connection closed:', req.connection.remoteAddress);
   });
-  conn.on('message', (msg) => {
-    console.log('Got PWA message:', msg);
-    if (msg.type === 'utf8') {
-    }
+
+  if (!appID) {
+    conn.close();
+    return;
+  }
+
+  // Create user if needed. Get access token.
+  callDash('/user/add', {data: {name: appID, pass: appID}}).then((user) => {
+    conn.on('message', (data) => {
+      console.log('Got PWA message:', data);
+      try {
+        const msg = JSON.parse(data);
+        if (msg.method === 'DeviceRegister') {
+          callDash('/devices', {data: {name: msg.params.name}})
+              .then(
+                  d => callDash(`/devices/${d.id}`, {method: 'PUT', data: {}}))
+              .then(
+                  d => conn.send(
+                      JSON.stringify({method: 'DeviceRegister', params: d})));
+        }
+      } catch (e) {
+        console.log('Malformed message: ', data);
+      }
+    });
   });
-  if (!appID) conn.close();
-  callDash('/user/add', {name: appID, pass: appID});  // Create user if needed
 });

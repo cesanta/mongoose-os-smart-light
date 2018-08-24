@@ -3,6 +3,7 @@
     "email_admin"
   ],
   "db": "/data/dash_db.json",
+  "log_dir": "/data/logs/dash",
   "email_auth": true,
   "web_root": "/web_root"
 }

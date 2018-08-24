@@ -49,7 +49,7 @@ class AddDeviceStep1 extends Component {
     return (
       <div>
         <div><a href="/">&larr; back to device list</a></div>
-        <div className="my-3 alert alert-info text-muted small">
+        <div className="my-3 alert alert-warning text-muted small">
           Go to your mobile phone settings
           and join the WiFi network "MongooseOS-????".
           Wait until connected, then press the button.
@@ -93,17 +93,20 @@ class AddDeviceStep2 extends Component {
           disabled={!ssid}
           href={done ? '/add3' : window.location.hash}
           onClick={(ev) => {
-            ev.preventDefault;
-            const newConfig = {
-              wifi: {
-                ap: { enable: false },
-                sta: { ssid: ssid, pass: pass, enable: true },
-                http: { enable: false },
+            ev.preventDefault();
+            const param1 = JSON.stringify({
+              config: {
+                wifi: {
+                  ap: { enable: false },
+                  sta: { ssid: ssid, pass: pass, enable: true },
+                  http: { enable: false },
+                }
               }
-            };
+            });
+            const param2 = JSON.stringify({ reboot: true });
             this.setState({ loading: true });
-            util.xhr('POST', 'http://192.168.4.1/rpc/Config.Set', { config: newConfig }, 3000)
-              .then(() => util.xhr('POST', 'http://192.168.4.1/rpc/Config.Save', { reboot: true }, 300))
+            util.xhr('POST', 'http://192.168.4.1/rpc/Config.Set', param1, 3000)
+              .then(() => util.xhr('POST', 'http://192.168.4.1/rpc/Config.Save', param2, 300))
               .then(() => this.setState({ done: true, loading: false }))
               .catch((err) => this.setState({ loading: false, error: err }));
           }}
@@ -118,8 +121,19 @@ class AddDeviceStep2 extends Component {
 
 class AddDeviceStep3 extends Component {
   componentDidMount() {
+    this.setState({ buttonDisabled: true, buttonLabel: 'Getting device ID ...' });
+    const register = () => {
+      // util.xhr('GET', 'http://192.168.4.1/rpc/Config.Get', '', 1000)
+      //   .then(res => this.props.setNewDeviceName(res.device.id))
+      //   .catch((err) => this.setState({ res: { error: err, ts: Date.now() } }));
+      // if (!this.props.newDeviceName) this.t = setTimeout(() => this.getDeviceName(), 1000);
+    };
+    register();
   }
-  render({ newDeviceName }, { done }) {
+  componentWillUnmount() {
+    clearTimeout(this.t);
+  }
+  render({ newDeviceName }, { buttonDisabled, buttonLabel }) {
     return (
       <div>
         <div><a href="/add2">&larr; back to step 2</a></div>
@@ -129,15 +143,13 @@ class AddDeviceStep3 extends Component {
           Wait until connected to the device, then click on the button.
         </div>
         <h4 className="my-3">Step 3: Register device</h4>
-        {
-          done ?
-            <a className="btn btn-danger btn-block mb-1" href="/"> Done!</a>
-            :
-            <a className="btn btn-danger btn-block mb-1 disabled" disabled>
-              <span className="spinner mr-2"></span>
-              Registering ...
-            </a>
-        }
+        <a
+          disabled={buttonDisabled}
+          className={`btn btn-danger btn-block mb-1 ${buttonDisabled ? 'disabled' : ''}`}
+          href="/"
+        >
+          {buttonLabel}
+        </a>
       </div>
     )
   }
