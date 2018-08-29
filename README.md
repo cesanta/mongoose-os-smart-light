@@ -33,17 +33,39 @@ TBD
    docker-compose build
    docker-compose up
    ```
-5. Connect your device to your workstation via a USB cable. Build and
+   NOTE: on MacOS, make sure to use Docker for Mac (not Docker toolbox),
+   see https://docs.docker.com/docker-for-mac/docker-toolbox/. That is
+   required cause Docker toolbox installation on Mac requires extra steps
+   to forward opened ports.
+6. Connect your device to your workstation via a USB cable. Build and
    flash the device:
    ```
    cd mongoose-os-smart-light/firmware
    mos build --platform YOUR_PLATFORM  # esp32, cc3220, stm32, esp8266
    mos flash
    ```
-6. Configure your device to talk to your backend:
+8. Register a new device on a management dashboard, obtain access token:
    ```
-   mos config-set foo.bar=....
+   $ curl -d '{"name": "device1"}' -H 'Content-Type: application/json' -u admin:admin http://192.168.1.21:8009/api/v2/devices
+   {
+     ...
+     "id": "a652730904b5fa792e67fa8c",
+     "token": "d7e60b25f49bbeb14bca3fc4",
+     ...
+   }
    ```
+   If you login to the dash at http://YOUR_WORKSTATION_IP:8009 with
+   username/password `admin/admin`, you should be able to see your new device.
+9. Configure your device with a dashboard:
+   ```
+   mos config-set device.id=GENERATED_DEVICE_ID
+   mos config-set dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc dash.token=ACCESS_TOKEN
+   mos config-set conf_acl=wifi.*
+   mos call FS.Rename '{"src": "conf9.json", "dst": "conf5.json"}'
+   ```
+   The `mos config-set` command generates `conf9.json` file on a device,
+   and `mos call FS.Rename` renames it to `conf5.json`, in order to make this
+   configuration immune to factory reset. 
 
 
 ## General Architecture

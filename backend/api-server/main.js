@@ -63,22 +63,24 @@ wsServer.on('connection', (conn, req) => {
   }
 
   // Create user if needed. Get access token.
-  callDash('/user/add', {data: {name: appID, pass: appID}}).then((user) => {
-    conn.on('message', (data) => {
-      console.log('Got PWA message:', data);
-      try {
-        const msg = JSON.parse(data);
-        if (msg.method === 'DeviceRegister') {
-          callDash('/devices', {data: {name: msg.params.name}})
-              .then(
-                  d => callDash(`/devices/${d.id}`, {method: 'PUT', data: {}}))
-              .then(
-                  d => conn.send(
-                      JSON.stringify({method: 'DeviceRegister', params: d})));
-        }
-      } catch (e) {
-        console.log('Malformed message: ', data);
+  callDash('/user/add', {data: {name: appID, pass: appID}});
+
+  const wssend = (name, args) => conn.send(JSON.stringify({name, args}));
+
+  conn.on('message', (data) => {
+    console.log('PWA', appID, data);
+    try {
+      const msg = JSON.parse(data);
+      wssend('boo', msg);
+      if (msg.name === 'pair') {
+        callDash(
+            `/devices/${msg.args.id}`,
+            {method: 'PUT', data: {share_with: appID}})
+            .then(() => wssend('pair'))
+            .catch(err => wssend('error', {name: 'pair', d, err}));
       }
-    });
+    } catch (e) {
+      console.log('Malformed message: ', data);
+    }
   });
 });

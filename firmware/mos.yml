@@ -1,4 +1,5 @@
 author: mongoose-os
+name: smartlight
 description: Smart Light full product example
 version: 1.0
 manifest_version: 2017-05-18
@@ -8,10 +9,11 @@ sources:
   - src
 config_schema:
   - ["dns_sd.enable", true]
-  - ["dns_sd.host_name", "MongooseOS-??????"]
-  - ["wifi.ap.ssid", "MongooseOS-??????"]
-  - ["device.id", "MongooseOS-??????"]
+  - ["dns_sd.host_name", "mongoose-os-smart-light"]
+  - ["wifi.ap.ssid", "Mongoose-OS-Smart-Light-??????"]
   - ["wifi.ap.pass", ""]
+  - ["provision.button.pin", 0]
+  - ["provision.button.hold_ms", 3000]
 libs:
   - origin: https://github.com/mongoose-os-libs/ca-bundle
   - origin: https://github.com/mongoose-os-libs/core
