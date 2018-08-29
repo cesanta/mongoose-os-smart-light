@@ -75,8 +75,8 @@ wsServer.on('connection', (conn, req) => {
       if (msg.name === 'pair') {
         callDash(
             `/devices/${msg.args.id}`,
-            {method: 'PUT', data: {share_with: appID}})
-            .then(() => wssend('pair'))
+            {method: 'PUT', data: {shared_with: appID, name: msg.args.name}})
+            .then(d => wssend('pair', d))
             .catch(err => wssend('error', {name: 'pair', d, err}));
       }
     } catch (e) {

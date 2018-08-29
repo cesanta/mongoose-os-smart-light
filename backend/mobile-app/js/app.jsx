@@ -132,11 +132,12 @@ class AddDeviceStep3 extends Component {
     super();
     this.setState({ buttonDisabled: true, buttonLabel: 'Pairing device...' });
     this.timer = setInterval(() => {
-      window.axios({ url: 'http://mongoose-os-smart-light.local/rpc/Config.Get', timeout: 1500 })
+      const url = 'http://mongoose-os-smart-light.local';
+      window.axios({ url: `${url}/rpc/Config.Get`, timeout: 1500 })
         .then((resp) => {
           this.setState({ buttonDisabled: false, buttonLabel: 'Done!' });
           clearInterval(this.timer);
-          wsend(ws, 'pair', { id: resp.data.device.id });
+          wsend(ws, 'pair', { id: resp.data.device.password, name: resp.data.device.id });
         }).catch((err) => { console.log(err); });
     }, 2000);
   }
