@@ -62,24 +62,36 @@ wsServer.on('connection', (conn, req) => {
     return;
   }
 
-  // Create user if needed. Get access token.
-  callDash('/user/add', {data: {name: appID, pass: appID}});
-
   const wssend = (name, data) => conn.send(JSON.stringify({name, data}));
 
-  conn.on('message', (data) => {
-    console.log('PWA', appID, data);
-    try {
-      const msg = JSON.parse(data);
-      if (msg.name === 'pair') {
-        callDash(
-            `/devices/${msg.data.id}`,
-            {method: 'PUT', data: {shared_with: appID, name: msg.data.name}})
-            .then(resp => wssend('pair', resp.data))
-            .catch(err => wssend('error', {name: 'pair', err}));
+  // Create user if needed. Get access token.
+  callDash('/user/add', {data: {name: appID, pass: appID}}).then((user) => {
+
+
+    const listDevices = () => {
+      callDash('/devices', {
+        token: user.token,
+      }).then(resp => wssend('devices', resp.data));
+    };
+
+    listDevices();
+
+    conn.on('message', (data) => {
+      console.log('PWA', appID, data);
+      try {
+        const msg = JSON.parse(data);
+        if (msg.name === 'pair') {
+          callDash(
+              `/devices/${msg.data.id}`,
+              {method: 'PUT', data: {shared_with: appID, name: msg.data.name}})
+              .then(resp => wssend('pair', resp.data))
+              .catch(err => wssend('error', {name: 'pair', err}));
+        } else if (msg.name === 'list') {
+          listDevices();
+        }
+      } catch (e) {
+        console.log('Malformed message: ', data);
       }
-    } catch (e) {
-      console.log('Malformed message: ', data);
-    }
+    });
   });
 });

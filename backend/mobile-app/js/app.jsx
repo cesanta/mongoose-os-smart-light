@@ -9,11 +9,11 @@ const Header = () => (
   </header>
 );
 
-const Device = ({ name }) => (
-  <div className="list-group-item">{name}
+const Device = ({ d }) => (
+  <div className="list-group-item">{d.name}
     <div className="onoffswitch float-right">
-      <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id={`switch_${name}`} />
-      <label className="onoffswitch-label py-0 my-0" for={`switch_${name}`}>
+      <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id={`switch_${d.name}`} />
+      <label className="onoffswitch-label py-0 my-0" for={`switch_${d.name}`}>
         <span className="onoffswitch-inner" />
         <span className="onoffswitch-switch" />
       </label>
@@ -21,15 +21,14 @@ const Device = ({ name }) => (
   </div>
 );
 
-const DeviceList = () => (
+const DeviceList = ({ devices }) => (
   <div>
     <h3 className="mb-3">
       My devices
       <a href="/add1" className="ml-3 btn btn-danger text-white float-right">Add device</a>
     </h3>
     <div className="list-group">
-      <Device name="device_1" />
-      <Device name="device_2" />
+      {devices.map(d => <Device d={d} />)}
     </div>
   </div>
 );
@@ -147,7 +146,7 @@ class AddDeviceStep3 extends Component {
     ws.callbacks.AddDeviceStep3 = (msg) => { // eslint-disable-line
       if (msg.name === 'pair' && msg.data.id == this.deviceDashID) {
         this.setState({ buttonLabel: 'Setting configuration...' });
-        rpc('Config.Set', { config: { dash: { enable: true } } })
+        rpc('Config.Set', { config: { dash: { enable: true }, dns_sd: { enable: false } } })
           .then(() => rpc('Config.Save', { reboot: true }))
           .then(() => this.setState({ buttonDisabled: false, buttonLabel: 'Done!' }))
           .catch(err => console.log('ERRR22', err));
@@ -164,7 +163,7 @@ class AddDeviceStep3 extends Component {
         <div className="my-3 alert alert-secondary text-muted small">
           Go to your mobile phone settings
           and switch back to your local WiFi network.
-          Wait until device is paired, then click next.
+          Wait until paired, then click next.
         </div>
         <h4 className="my-3">Step 3: Pairing device</h4>
         <a
@@ -191,19 +190,22 @@ class App extends Component {
     }
     const ws = window.util.wsconnect(appID);
     ws.callbacks = {};
-    ws.onmessage = msg =>
+    ws.onmessage = (msg) => {
+      console.log('ws', msg);
+      if (msg.name === 'devices') this.setState({ devices: msg.data });
       Object.keys(ws.callbacks).forEach(k => ws.callbacks[k](msg));
-    this.state = { ws };
+    };
+    this.state = { ws, devices: [] };
   }
-  render(props, { ws }) {
+  render() {
     return (
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />
         <Router history={createHashHistory()} onChange={(e) => { this.currentUrl = e.url; }}>
-          <DeviceList path="/" default title="Device List" />
+          <DeviceList path="/" default devices={this.state.devices} />
           <AddDeviceStep1 path="/add1" />
           <AddDeviceStep2 path="/add2" />
-          <AddDeviceStep3 path="/add3" ws={ws} />
+          <AddDeviceStep3 path="/add3" ws={this.state.ws} />
         </Router>
       </div>
     )
