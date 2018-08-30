@@ -41,8 +41,8 @@ const callDash = (uri, options) => {
     url: `http://${argv.dash}/api/v2${uri}`,
   };
   Object.assign(opts, options);
-  console.log('->', JSON.stringify(opts));
-  return axios(opts).catch(err => console.log('Error:', uri, err));
+  console.log('DASH ->', JSON.stringify(opts));
+  return axios(opts);
 };
 
 httpServer.listen(argv.port || 8002, () => {
@@ -65,19 +65,18 @@ wsServer.on('connection', (conn, req) => {
   // Create user if needed. Get access token.
   callDash('/user/add', {data: {name: appID, pass: appID}});
 
-  const wssend = (name, args) => conn.send(JSON.stringify({name, args}));
+  const wssend = (name, data) => conn.send(JSON.stringify({name, data}));
 
   conn.on('message', (data) => {
     console.log('PWA', appID, data);
     try {
       const msg = JSON.parse(data);
-      wssend('boo', msg);
       if (msg.name === 'pair') {
         callDash(
-            `/devices/${msg.args.id}`,
-            {method: 'PUT', data: {shared_with: appID, name: msg.args.name}})
-            .then(d => wssend('pair', d))
-            .catch(err => wssend('error', {name: 'pair', d, err}));
+            `/devices/${msg.data.id}`,
+            {method: 'PUT', data: {shared_with: appID, name: msg.data.name}})
+            .then(resp => wssend('pair', resp.data))
+            .catch(err => wssend('error', {name: 'pair', err}));
       }
     } catch (e) {
       console.log('Malformed message: ', data);

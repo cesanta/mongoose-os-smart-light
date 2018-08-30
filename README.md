@@ -60,7 +60,7 @@ TBD
    ```
    mos config-set device.password=GENERATED_DEVICE_ID
    mos config-set dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc dash.token=ACCESS_TOKEN
-   mos config-set conf_acl=wifi.*
+   mos config-set conf_acl=wifi.*,dash.enable
    mos call FS.Rename '{"src": "conf9.json", "dst": "conf5.json"}'
    ```
    The `mos config-set` command generates `conf9.json` file on a device,

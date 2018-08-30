@@ -40,12 +40,10 @@ class AddDeviceStep1 extends Component {
     this.state = { connected: false };
   }
   componentDidMount() {
-    // this.props.setDevice(null);
     this.timer = setInterval(() =>
       window.axios({ url: 'http://192.168.4.1/rpc/Config.Get', timeout: 1000 })
         .then(() => {
           this.setState({ connected: true });
-          // this.props.setDevice({ name: res.data.device.id, token: res.data.dash.token });
           clearInterval(this.timer);
         }).catch(() => { }), 1000);
   }
@@ -125,26 +123,41 @@ class AddDeviceStep2 extends Component {
   }
 };
 
-const wsend = (ws, name, args) => ws.ws.send(JSON.stringify({ name, args }));
+const wsend = (ws, name, data) => ws.ws.send(JSON.stringify({ name, data }));
 
 class AddDeviceStep3 extends Component {
   constructor({ ws }) {
     super();
     this.setState({ buttonDisabled: true, buttonLabel: 'Pairing device...' });
+    const rpc = (func, data) => window.axios({
+      transformRequest: data => JSON.stringify(data),
+      method: data ? 'post' : 'get',
+      url: `http://mongoose-os-smart-light.local/rpc/${func}`,
+      timeout: 2000,
+      data,
+    });
+    const url = 'http://mongoose-os-smart-light.local';
     this.timer = setInterval(() => {
-      const url = 'http://mongoose-os-smart-light.local';
-      window.axios({ url: `${url}/rpc/Config.Get`, timeout: 1500 })
-        .then((resp) => {
-          this.setState({ buttonDisabled: false, buttonLabel: 'Done!' });
-          clearInterval(this.timer);
-          wsend(ws, 'pair', { id: resp.data.device.password, name: resp.data.device.id });
-        }).catch((err) => { console.log(err); });
+      rpc('Config.Get').then((resp) => {
+        clearInterval(this.timer);
+        this.deviceDashID = resp.data.device.password;
+        wsend(ws, 'pair', { id: resp.data.device.password, name: resp.data.device.id });
+      }).catch((err) => { console.log('pairing1_err', err); });
     }, 2000);
+    ws.callbacks.AddDeviceStep3 = (msg) => { // eslint-disable-line
+      if (msg.name === 'pair' && msg.data.id == this.deviceDashID) {
+        this.setState({ buttonLabel: 'Setting configuration...' });
+        rpc('Config.Set', { config: { dash: { enable: true } } })
+          .then(() => rpc('Config.Save', { reboot: true }))
+          .then(() => this.setState({ buttonDisabled: false, buttonLabel: 'Done!' }))
+          .catch(err => console.log('ERRR22', err));
+      }
+    };
   }
   componentWillUnmount() {
     clearInterval(this.timer);
   }
-  render({ }, { buttonDisabled, buttonLabel }) {
+  render(props, state) {
     return (
       <div>
         <div><a href="/add2">&larr; back to step 2</a></div>
@@ -155,12 +168,12 @@ class AddDeviceStep3 extends Component {
         </div>
         <h4 className="my-3">Step 3: Pairing device</h4>
         <a
-          disabled={buttonDisabled}
-          className={`btn btn-danger btn-block mb-1 ${buttonDisabled ? 'disabled' : ''}`}
+          disabled={state.buttonDisabled}
+          className={`btn btn-danger btn-block mb-1 ${state.buttonDisabled ? 'disabled' : ''}`}
           href="/"
         >
-          <span className={`spinner mr-2 ${buttonDisabled ? '' : 'd-none'}`} />
-          {buttonLabel}
+          <span className={`spinner mr-2 ${state.buttonDisabled ? '' : 'd-none'}`} />
+          {state.buttonLabel}
         </a>
       </div>
     )
@@ -170,6 +183,7 @@ class AddDeviceStep3 extends Component {
 class App extends Component {
   constructor(props) {
     super(props);
+    // TODO(lsm): use more robust method, like evercookie or fingerprintjs
     let appID = window.util.getCookie('app_id');
     if (!appID) {
       appID = window.util.generateUniqueID();
@@ -179,9 +193,9 @@ class App extends Component {
     ws.callbacks = {};
     ws.onmessage = msg =>
       Object.keys(ws.callbacks).forEach(k => ws.callbacks[k](msg));
-    this.state = { ws, appID };
+    this.state = { ws };
   }
-  render({ }, { ws, appID }) {
+  render(props, { ws }) {
     return (
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />

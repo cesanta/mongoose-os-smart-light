@@ -20,14 +20,15 @@ var util = {
     };
     var reconnect = () => {
       console.log('Reconnecting to', url);
-      var ws = new WebSocket(url), msg;
+      var ws = new WebSocket(url);
       ws.onmessage = (ev) => {
+        var msg;
         try {
           msg = JSON.parse(ev.data);
-          wrapper.onmessage(msg);
         } catch (e) {
           console.log('Invalid ws frame:', ev.data);  // eslint-disable-line
         }
+        if (msg) wrapper.onmessage(msg);
       };
       ws.onclose = () => {
         window.clearTimeout(wrapper.tid);
