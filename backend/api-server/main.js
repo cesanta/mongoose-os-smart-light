@@ -64,13 +64,11 @@ wsServer.on('connection', (conn, req) => {
 
   const wssend = (name, data) => conn.send(JSON.stringify({name, data}));
 
-  // Create user if needed
-  callDash('/user/add', {data: {name: appID, pass: appID}});
+  callDash('/user/add', {data: {name: appID, pass: appID}});  // Create user
 
-  const listDevices = () => {
-    const opts = {token: appID};
-    callDash('/devices', opts).then(resp => wssend('devices', resp.data));
-  };
+  const uauth = {auth: {username: appID, password: appID}};
+  const listDevices = () =>
+      callDash('/devices', uauth).then(r => wssend('devices', r.data));
   listDevices();
 
   conn.on('message', (data) => {
@@ -78,9 +76,8 @@ wsServer.on('connection', (conn, req) => {
     try {
       const msg = JSON.parse(data);
       if (msg.name === 'pair') {
-        callDash(
-            `/devices/${msg.data.id}`,
-            {method: 'PUT', data: {shared_with: appID, name: msg.data.name}})
+        const args = {shared_with: `email_${appID}`, name: msg.data.name};
+        callDash(`/devices/${msg.data.id}`, {method: 'PUT', data: args})
             .then(resp => wssend('pair', resp.data))
             .catch(err => wssend('error', {name: 'pair', err}));
       } else if (msg.name === 'list') {

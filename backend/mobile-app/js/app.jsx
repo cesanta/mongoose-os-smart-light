@@ -5,15 +5,21 @@ const { createHashHistory } = window.History;
 
 const Header = () => (
   <header className="jumbotron mt-3 py-2 mb-4">
-    <h2>Mongoose OS Smart Light</h2>
+    <h2 className="text-center"> <img src="images/logo-512x512.png" width="32" alt="" className="my-1 mx-2" /> Smart Light</h2>
   </header>
 );
 
 const Device = ({ d }) => (
   <div className="list-group-item">{d.name}
     <div className="onoffswitch float-right">
-      <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox" id={`switch_${d.name}`} />
-      <label className="onoffswitch-label py-0 my-0" for={`switch_${d.name}`}>
+      <input
+        type="checkbox"
+        name="onoffswitch"
+        className="onoffswitch-checkbox"
+        id={`switch_${d.id}`}
+        onChange={ev => console.log(ev.target.checked)}
+      />
+      <label className="onoffswitch-label py-0 my-0" for={`switch_${d.id}`}>
         <span className="onoffswitch-inner" />
         <span className="onoffswitch-switch" />
       </label>
@@ -132,10 +138,9 @@ class AddDeviceStep3 extends Component {
     this.setState({ loading: false, error: '' });
     ws.callbacks.AddDeviceStep3 = (msg) => { // eslint-disable-line
       if (msg.name === 'pair' && msg.data.id == this.deviceDashID) {
-        console.log('aaa');
         rpc('Config.Set', { config: { dash: { enable: true }, dns_sd: { enable: false } } })
           .then(() => rpc('Config.Save', { reboot: true }))
-          .then(() => Router.route('/'))
+          .then(() => { Router.route('/'); wsend(ws, 'list'); })
           .catch(err => this.setState({ error: `Error: ${err.message}. Please retry` }))
           .finally(() => this.setState({ loading: false }))
       }
@@ -154,7 +159,7 @@ class AddDeviceStep3 extends Component {
         <button
           className="btn btn-danger btn-block mb-1"
           onClick={() => {
-            this.setState({ loading: true });
+            this.setState({ loading: true, error: '' });
             rpc('Config.Get').then((resp) => {
               this.deviceDashID = resp.data.device.id;
               wsend(props.ws, 'pair', { id: resp.data.device.id, name: resp.data.device.password });
