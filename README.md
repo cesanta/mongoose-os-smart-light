@@ -102,6 +102,33 @@ the API Server talks to the mDash with the administrative privileges.
 
 ## Device provisioning process
 
+Adding new device is implemented by the Mobile app (PWA) in 3 steps:
+
+1. Customer is asked to join the WiFi network called `Mongoose-OS-Smart-Light`
+   and set device name. A new device, when shipped to the customer,
+   starts a WiFi access point, and has a pre-defined IP address `192.168.4.1`.
+   The app calls device's RPC function `Config.Set`, saving entered
+   device name into the `device.password` configuration variable.
+2. Customer is asked to enter WiFi name/password. 
+   The app calls device's RPC function `Config.Set` to set
+   `wifi.sta.{ssid,pass,enable}` configuration variables, and then calls
+   `Config.Save` function to save the config and reboot the device.
+   After the reboot, a device joins home WiFi network, and starts the
+   DNS-SD service, making itself visible as `mongoose-os-smart-light.local`.
+3. Customer is asked to join home WiFi network and press the button to
+   finish registration process. The app calls `Config.Set` and `Config.Save`
+   RPCs to disable local webserver on a device, and the DNS-SD service.
+   Then it sends `pair` Websocket message to the API server, asking to
+   associate the device with the particular mobile APP (via the generated app ID).
+   The API server registers the app ID as a user on mDash,
+   and sets the `shared_with` device attribute equal to the app ID.
+
+Thus, all devices are owned by the admin user, but the pairing process
+shares a device with the particular mobile app. Therefore, when an API
+server lists devices on behalf of the mobile app, all shared devices are
+returned back.
+
+
 ## Mobile app
 
 The mobile app is a Progressive Web App (PWA). When first downloaded and run
