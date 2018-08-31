@@ -46,27 +46,28 @@ TBD
    ```
 8. Register a new device on a management dashboard, obtain access token:
    ```
-   $ curl -d '{"name": "device1"}' -H 'Content-Type: application/json' -u admin:admin http://192.168.1.21:8009/api/v2/devices
+   $ curl -d '{"name": "device1"}' -H 'Content-Type: application/json' -u admin:admin http://YOUR_WORKSTATION_IP:8009/api/v2/devices
    {
      ...
-     "id": "a652730904b5fa792e67fa8c",
-     "token": "d7e60b25f49bbeb14bca3fc4",
+     "id": "...........",
+     "token": "..........",
      ...
    }
    ```
    If you login to the dash at http://YOUR_WORKSTATION_IP:8009 with
    username/password `admin/admin`, you should be able to see your new device.
-9. Configure your device with a dashboard:
+9. Factory-configure your device, and pre-provision it on a dashboard:
    ```
-   mos config-set --no-reboot device.password=GENERATED_DEVICE_ID
-   mos config-set --no-reboot dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc
+   mos config-set --no-reboot device.id=GENERATED_DEVICE_ID
    mos config-set --no-reboot dash.token=ACCESS_TOKEN
+   mos config-set --no-reboot dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc
    mos config-set --no-reboot conf_acl=wifi.*,dash.enable
    mos call FS.Rename '{"src": "conf9.json", "dst": "conf5.json"}'
    ```
-   The `mos config-set` command generates `conf9.json` file on a device,
-   and `mos call FS.Rename` renames it to `conf5.json`, in order to make this
-   configuration immune to factory reset. 
+   The `mos config-set` commands generates `conf9.json` file on a device.
+   The `mos call FS.Rename` renames it to `conf5.json`, in order to make this
+   configuration immune to factory reset and OTA. The only way to re-configure
+   these settings is to reflash the device, or remove `conf5.json`.
 
 
 ## General Architecture

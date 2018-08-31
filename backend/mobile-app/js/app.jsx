@@ -33,21 +33,18 @@ const DeviceList = ({ devices }) => (
   </div>
 );
 
+const rpc = (func, data, addr) => window.axios({
+  transformRequest: data => JSON.stringify(data),
+  method: data ? 'post' : 'get',
+  url: `http://${addr || 'mongoose-os-smart-light.local'}/rpc/${func}`,
+  timeout: 2000,
+  data,
+});
+
 class AddDeviceStep1 extends Component {
   constructor() {
     super();
-    this.state = { connected: false };
-  }
-  componentDidMount() {
-    this.timer = setInterval(() =>
-      window.axios({ url: 'http://192.168.4.1/rpc/Config.Get', timeout: 1000 })
-        .then(() => {
-          this.setState({ connected: true });
-          clearInterval(this.timer);
-        }).catch(() => { }), 1000);
-  }
-  componentWillUnmount() {
-    clearInterval(this.timer);
+    this.state = { loading: false, done: false, name: 'Kitchen Light', error: '' };
   }
   render() {
     return (
@@ -61,25 +58,35 @@ class AddDeviceStep1 extends Component {
         <pre className="my-3 alert alert-warning text-muted small d-none">
           {JSON.stringify([this.props, this.state], null, 2)}
         </pre>
-        <h4>Step 1: Connect to device</h4>
-        {
-          this.state.connected ?
-            <a className="btn btn-danger btn-block mb-1" href="/add2">
-              Connected! Next step &rarr;
-            </a>
-            :
-            <button className="btn btn-danger btn-block mb-1 disabled" disabled>
-              <span className="spinner mr-2" />
-              Connecting ...
-            </button>
-        }
+        <h4>Step 1: Set device name</h4>
+        <input
+          type="text"
+          className="form-control mb-2"
+          placeholder="Type name..."
+          value={this.state.name}
+          onInput={e => this.setState({ name: e.target.value })}
+        />
+        <button
+          className="btn btn-danger btn-block mb-1"
+          onClick={() => {
+            this.setState({ loading: true, error: '' });
+            rpc('Config.Set', { config: { device: { password: this.state.name } } }, '192.168.4.1')
+              .then(() => Router.route('/add2'))
+              .catch(() => this.setState({ error: 'Error! Make sure you have joined device WiFi.' }))
+              .finally(() => this.setState({ loading: false }));
+          }}
+        >
+          <span className={`spinner mr-2 ${this.state.loading ? '' : 'd-none'}`} />
+          Set device name
+        </button>
+        <div className={`alert alert-danger small ${this.state.error ? '' : 'd-none'}`}>{this.state.error}</div>
       </div>
     )
   }
 };
 
 class AddDeviceStep2 extends Component {
-  render({ }, { ssid, pass, done, loading, error }) {
+  render({ }, { ssid, pass, loading, error }) {
     return (
       <div>
         <div><a href="/add1">&larr; back to step1</a></div>
@@ -89,35 +96,30 @@ class AddDeviceStep2 extends Component {
         </div>
         <input type="text" className="form-control mb-2" placeholder="WiFi network name" value={ssid} onInput={e => this.setState({ ssid: e.target.value })} />
         <input type="password" className="form-control mb-2" placeholder="WiFi password" value={pass} onInput={e => this.setState({ pass: e.target.value })} />
-        <div className={`alert alert-info ${error ? '' : 'd-none'}`}>
-          Error: {JSON.stringify(error)}
-        </div>
-        <a
-          className={`btn btn-danger btn-block mb-1 ${ssid ? '' : 'disabled'}`}
-          disabled={!ssid}
-          href={done ? '/add3' : window.location.hash}
-          onClick={(ev) => {
-            ev.preventDefault();
-            const param1 = JSON.stringify({
+        <button
+          className="btn btn-danger btn-block mb-1"
+          onClick={() => {
+            const param1 = {
               config: {
                 wifi: {
-                  ap: { enable: false },
-                  sta: { ssid, pass, enable: true },
-                },
-              },
-            });
+                  ap: { enable: false }, sta: { ssid, pass, enable: true }
+                }
+              }
+            };
             const param2 = JSON.stringify({ reboot: true });
             this.setState({ loading: true });
-            window.axios.post('http://192.168.4.1/rpc/Config.Set', param1, { timeout: 3000 })
-              .then(() => window.axios.post('http://192.168.4.1/rpc/Config.Save', param2, { timeout: 1000 }))
-              .then(() => this.setState({ done: true, loading: false }))
-              .catch(err => this.setState({ loading: false, error: err }));
+            rpc('Config.Set', param1, '192.168.4.1')
+              .then(() => rpc('Config.Save', param2, '192.168.4.1'))
+              .then(() => Router.route('/add3'))
+              .catch(err => this.setState({ error: `Error: ${err.message}. Please retry` }))
+              .finally(() => this.setState({ loading: false }));
           }}
         >
           <span className={`spinner mr-2 ${loading ? '' : 'd-none'}`} />
-          {done ? <span>Done! Next step &rarr;</span> : 'Set device WiFi'}
-        </a>
-      </div>
+          Set device WiFi
+        </button>
+        <div className={`alert alert-danger small ${error ? '' : 'd-none'}`}>{error}</div>
+      </div >
     )
   }
 };
@@ -127,53 +129,42 @@ const wsend = (ws, name, data) => ws.ws.send(JSON.stringify({ name, data }));
 class AddDeviceStep3 extends Component {
   constructor({ ws }) {
     super();
-    this.setState({ buttonDisabled: true, buttonLabel: 'Pairing device...' });
-    const rpc = (func, data) => window.axios({
-      transformRequest: data => JSON.stringify(data),
-      method: data ? 'post' : 'get',
-      url: `http://mongoose-os-smart-light.local/rpc/${func}`,
-      timeout: 2000,
-      data,
-    });
-    const url = 'http://mongoose-os-smart-light.local';
-    this.timer = setInterval(() => {
-      rpc('Config.Get').then((resp) => {
-        clearInterval(this.timer);
-        this.deviceDashID = resp.data.device.password;
-        wsend(ws, 'pair', { id: resp.data.device.password, name: resp.data.device.id });
-      }).catch((err) => { console.log('pairing1_err', err); });
-    }, 2000);
+    this.setState({ loading: false, error: '' });
     ws.callbacks.AddDeviceStep3 = (msg) => { // eslint-disable-line
       if (msg.name === 'pair' && msg.data.id == this.deviceDashID) {
-        this.setState({ buttonLabel: 'Setting configuration...' });
+        console.log('aaa');
         rpc('Config.Set', { config: { dash: { enable: true }, dns_sd: { enable: false } } })
           .then(() => rpc('Config.Save', { reboot: true }))
-          .then(() => this.setState({ buttonDisabled: false, buttonLabel: 'Done!' }))
-          .catch(err => console.log('ERRR22', err));
+          .then(() => Router.route('/'))
+          .catch(err => this.setState({ error: `Error: ${err.message}. Please retry` }))
+          .finally(() => this.setState({ loading: false }))
       }
     };
-  }
-  componentWillUnmount() {
-    clearInterval(this.timer);
   }
   render(props, state) {
     return (
       <div>
         <div><a href="/add2">&larr; back to step 2</a></div>
         <div className="my-3 alert alert-secondary text-muted small">
-          Go to your mobile phone settings
-          and switch back to your local WiFi network.
-          Wait until paired, then click next.
+          Go to your mobile phone settings,
+          switch back to your local WiFi network.
+          Then click on a button to finish.
         </div>
-        <h4 className="my-3">Step 3: Pairing device</h4>
-        <a
-          disabled={state.buttonDisabled}
-          className={`btn btn-danger btn-block mb-1 ${state.buttonDisabled ? 'disabled' : ''}`}
-          href="/"
+        <h4 className="my-3">Step 3: Finish registration</h4>
+        <button
+          className="btn btn-danger btn-block mb-1"
+          onClick={() => {
+            this.setState({ loading: true });
+            rpc('Config.Get').then((resp) => {
+              this.deviceDashID = resp.data.device.id;
+              wsend(props.ws, 'pair', { id: resp.data.device.id, name: resp.data.device.password });
+            }).catch(err => this.setState({ loading: false, error: `Error: ${err.message}. Please retry` }))
+          }}
         >
-          <span className={`spinner mr-2 ${state.buttonDisabled ? '' : 'd-none'}`} />
-          {state.buttonLabel}
-        </a>
+          <span className={`spinner mr-2 ${state.loading ? '' : 'd-none'}`} />
+          Finish registration
+        </button>
+        <div className={`alert alert-danger small ${state.error ? '' : 'd-none'}`}>{state.error}</div>
       </div>
     )
   }
