@@ -7,14 +7,15 @@ var util = {
     const parts = value.split(`; ${name}=`);
     return parts.length === 2 ? parts.pop().split(';').shift() : undefined;
   },
-  wsconnect: function(appID) {
-    var l = window.location;
-    var proto = l.protocol === 'https:' ? 'wss:' : 'ws:';
-    var url = `${proto}//${l.host}${l.pathname}ws`;
+  wsconnect: function(url) {
+    if (!url) {
+      var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      url = `${proto}//${location.host}/ws`;
+    }
     var wrapper = {
-      shouldReconnect: true,
+      closed: false,
       close: () => {
-        wrapper.shouldReconnect = false;
+        wrapper.closed = true;
         wrapper.ws.close();
       },
     };
@@ -28,13 +29,11 @@ var util = {
         } catch (e) {
           console.log('Invalid ws frame:', ev.data);  // eslint-disable-line
         }
-        if (msg) wrapper.onmessage(msg);
+        if (msg) wrapper.onmessage(msg);  // Callback outside of try block
       };
       ws.onclose = () => {
-        window.clearTimeout(wrapper.tid);
-        if (wrapper.shouldReconnect) {
-          wrapper.tid = window.setTimeout(reconnect, 1000);
-        }
+        clearTimeout(wrapper.tid);
+        if (!wrapper.closed) wrapper.tid = setTimeout(reconnect, 1000);
       };
       wrapper.ws = ws;
     };

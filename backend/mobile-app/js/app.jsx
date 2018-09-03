@@ -5,36 +5,51 @@ const { createHashHistory } = window.History;
 
 const Header = () => (
   <header className="jumbotron mt-3 py-2 mb-4">
-    <h2 className="text-center"> <img src="images/logo-512x512.png" width="32" alt="" className="my-1 mx-2" /> Smart Light</h2>
+    <h2 className="text-center">
+      <img src="images/logo-512x512.png" width="32" alt="" className="my-1 mx-2" />
+      Smart Light
+     </h2>
   </header>
 );
 
-const Device = ({ d }) => (
-  <div className="list-group-item">{d.name}
-    <div className="onoffswitch float-right">
-      <input
-        type="checkbox"
-        name="onoffswitch"
-        className="onoffswitch-checkbox"
-        id={`switch_${d.id}`}
-        onChange={ev => console.log(ev.target.checked)}
-      />
-      <label className="onoffswitch-label py-0 my-0" for={`switch_${d.id}`}>
-        <span className="onoffswitch-inner" />
-        <span className="onoffswitch-switch" />
-      </label>
-    </div>
-  </div>
-);
+// const Device = ({ d }) => (
 
-const DeviceList = ({ devices }) => (
+class Device extends Component {
+  render({ d, ws }) {
+    return (
+      <div className="list-group-item">
+        {d.name}
+        <span className={`ml-2 small ${d.online ? 'text-success' : 'text-danger'}`}>
+          {d.online ? 'online' : 'offline'}
+        </span>
+        <div className="onoffswitch float-right">
+          <input
+            disabled={!d.online}
+            type="checkbox"
+            name="onoffswitch"
+            checked={d.online && (((d.shadow || {}).state || {}).reported || {}).on}
+            className="onoffswitch-checkbox"
+            id={`switch_${d.id}`}
+            onChange={ev => wsend(ws, 'on', { id: d.id, on: ev.target.checked })}
+          />
+          <label className="onoffswitch-label py-0 my-0" for={`switch_${d.id}`}>
+            <span className="onoffswitch-inner" />
+            <span className="onoffswitch-switch" />
+          </label>
+        </div>
+      </div>
+    );
+  }
+};
+
+const DeviceList = ({ devices, ws }) => (
   <div>
     <h3 className="mb-3">
       My devices
       <a href="/add1" className="ml-3 btn btn-danger text-white float-right">Add device</a>
     </h3>
     <div className="list-group">
-      {devices.map(d => <Device d={d} />)}
+      {devices.map(d => <Device d={d} ws={ws} />)}
     </div>
   </div>
 );
@@ -176,19 +191,20 @@ class AddDeviceStep3 extends Component {
 };
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+  constructor() {
+    super();
     // TODO(lsm): use more robust method, like evercookie or fingerprintjs
-    let appID = window.util.getCookie('app_id');
+    var appID = window.util.getCookie('app_id');
     if (!appID) {
       appID = window.util.generateUniqueID();
       document.cookie = `app_id=${appID}`;
     }
-    const ws = window.util.wsconnect(appID);
+    const ws = window.util.wsconnect();
     ws.callbacks = {};
     ws.onmessage = (msg) => {
       console.log('ws', msg);
       if (msg.name === 'devices') this.setState({ devices: msg.data });
+      if (['created', 'deleted', 'updated'].includes(msg.name)) wsend(ws, 'list');
       Object.keys(ws.callbacks).forEach(k => ws.callbacks[k](msg));
     };
     this.state = { ws, devices: [] };
@@ -198,7 +214,7 @@ class App extends Component {
       <div className="container-fluid" style={{ 'max-width': '480px' }}>
         <Header />
         <Router history={createHashHistory()} onChange={(e) => { this.currentUrl = e.url; }}>
-          <DeviceList path="/" default devices={this.state.devices} />
+          <DeviceList path="/" default devices={this.state.devices} ws={this.state.ws} />
           <AddDeviceStep1 path="/add1" />
           <AddDeviceStep2 path="/add2" />
           <AddDeviceStep3 path="/add3" ws={this.state.ws} />
