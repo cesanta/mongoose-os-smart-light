@@ -3,25 +3,20 @@
 
 static void delta_cb(int ev, void *ev_data, void *userdata) {
   struct mg_str *delta = (struct mg_str *) ev_data;
-  // json_scanf(args.p, args.len, "{state: %T}", &st);
+  int pin = mgos_sys_config_get_smartlight_pin();
+  bool on = false;
+
   LOG(LL_INFO, ("GOT DELTA: [%.*s]", (int) delta->len, delta->p));
 
-  // struct mgos_shadow_update_data *update_data = ev_data;
-  // struct mgos_shadow_update_data *data = ev_data;
-  // struct mbuf mb;
-  // struct json_out out = JSON_OUT_MBUF(&mb);
-  // mbuf_init(&mb, 100);
-  // json_vprintf(&out, data->json_fmt, data->ap);
-  // if (data->version == 0) {
-  //   mgos_dash_callf_noreply("Dash.Shadow.Update", "{state: {reported:
-  //   %.*s}}",
-  //                           (int) mb.len, mb.buf);
-  // } else {
-  //   mgos_dash_callf_noreply("Dash.Shadow.Update",
-  //                           "{version: %llu, state: {reported: %.*s}}",
-  //                           data->version, (int) mb.len, mb.buf);
-  // }
-  // mbuf_free(&mb);
+  if (json_scanf(delta->p, delta->len, "{on: %B}", &on) != 1) {
+    LOG(LL_ERROR, ("Unexpected delta, looking for {on: true/false}"));
+  } else if (!mgos_gpio_set_mode(pin, MGOS_GPIO_MODE_OUTPUT)) {
+    LOG(LL_ERROR, ("mgos_gpio_set_mode(%d, GPIO_MODE_OUTPUT)", pin));
+  } else {
+    mgos_gpio_write(pin, on);
+    mgos_shadow_updatef(0, "{state: {reported: {on: %B}}}", on);
+    LOG(LL_INFO, ("DELTA applied"));
+  }
   (void) ev;
   (void) userdata;
 }
