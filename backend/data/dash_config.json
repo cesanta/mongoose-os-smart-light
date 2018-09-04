@@ -5,5 +5,6 @@
   "db": "/data/dash_db.json",
   "log_dir": "/data/logs/dash",
   "email_auth": true,
+  "add": "127.0.0.1:8001",
   "web_root": "/web_root"
 }

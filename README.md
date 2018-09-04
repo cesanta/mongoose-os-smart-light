@@ -46,7 +46,7 @@ TBD
    ```
 8. Register a new device on a management dashboard, obtain access token:
    ```
-   $ curl -d '{"name": "device1"}' -H 'Content-Type: application/json' -u admin:admin http://YOUR_WORKSTATION_IP:8009/api/v2/devices
+   $ curl -d '{}' -u admin:admin http://YOUR_WORKSTATION_IP:8009/api/v2/devices
    {
      ...
      "id": "...........",

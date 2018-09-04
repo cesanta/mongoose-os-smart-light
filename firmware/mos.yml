@@ -16,6 +16,7 @@ config_schema:
   - ["provision.button.hold_ms", 3000]
   - ["smartlight", "o", {title: "My app custom settings"}]
   - ["smartlight.pin", "i", 2, {title: "Light GPIO pin"}]
+  - ["smartlight.inverted", "b", true, {title: "True for ESP32 & ESP8266"}]
 libs:
   - origin: https://github.com/mongoose-os-libs/ca-bundle
   - origin: https://github.com/mongoose-os-libs/core

@@ -13,8 +13,9 @@ static void delta_cb(int ev, void *ev_data, void *userdata) {
   } else if (!mgos_gpio_set_mode(pin, MGOS_GPIO_MODE_OUTPUT)) {
     LOG(LL_ERROR, ("mgos_gpio_set_mode(%d, GPIO_MODE_OUTPUT)", pin));
   } else {
-    mgos_gpio_write(pin, on);               /* Turn on/off the light */
-    mgos_shadow_updatef(0, "{on: %B}", on); /* Update reported section */
+    bool inverted = mgos_sys_config_get_smartlight_inverted();
+    mgos_gpio_write(pin, inverted ? !on : on); /* Turn on/off the light */
+    mgos_shadow_updatef(0, "{on: %B}", on);    /* Update reported section */
     LOG(LL_INFO, ("DELTA applied"));
   }
   (void) ev;

@@ -12,35 +12,29 @@ const Header = () => (
   </header>
 );
 
-// const Device = ({ d }) => (
-
-class Device extends Component {
-  render({ d, ws }) {
-    return (
-      <div className="list-group-item">
-        {d.name}
-        <span className={`ml-2 small ${d.online ? 'text-success' : 'text-danger'}`}>
-          {d.online ? 'online' : 'offline'}
-        </span>
-        <div className="onoffswitch float-right">
-          <input
-            disabled={!d.online}
-            type="checkbox"
-            name="onoffswitch"
-            checked={d.online && (((d.shadow || {}).state || {}).reported || {}).on}
-            className="onoffswitch-checkbox"
-            id={`switch_${d.id}`}
-            onChange={ev => wsend(ws, 'on', { id: d.id, on: ev.target.checked })}
-          />
-          <label className="onoffswitch-label py-0 my-0" for={`switch_${d.id}`}>
-            <span className="onoffswitch-inner" />
-            <span className="onoffswitch-switch" />
-          </label>
-        </div>
-      </div>
-    );
-  }
-};
+const Device = ({ d, ws }) => (
+  <div className="list-group-item">
+    {d.name}
+    <span className={`ml-2 small ${d.online ? 'text-success' : 'text-danger'}`}>
+      {d.online ? 'online' : 'offline'}
+    </span>
+    <div className="onoffswitch float-right">
+      <input
+        disabled={!d.online}
+        type="checkbox"
+        name="onoffswitch"
+        checked={d.online && (((d.shadow || {}).state || {}).reported || {}).on}
+        className="onoffswitch-checkbox"
+        id={`switch_${d.id}`}
+        onChange={ev => wsend(ws, 'on', { id: d.id, on: ev.target.checked })}
+      />
+      <label className="onoffswitch-label py-0 my-0" for={`switch_${d.id}`}>
+        <span className="onoffswitch-inner" />
+        <span className="onoffswitch-switch" />
+      </label>
+    </div>
+  </div>
+);
 
 const DeviceList = ({ devices, ws }) => (
   <div>
@@ -194,7 +188,7 @@ class App extends Component {
   constructor() {
     super();
     // TODO(lsm): use more robust method, like evercookie or fingerprintjs
-    var appID = window.util.getCookie('app_id');
+    let appID = window.util.getCookie('app_id');
     if (!appID) {
       appID = window.util.generateUniqueID();
       document.cookie = `app_id=${appID}`;
@@ -202,9 +196,10 @@ class App extends Component {
     const ws = window.util.wsconnect();
     ws.callbacks = {};
     ws.onmessage = (msg) => {
-      console.log('ws', msg);
+      const reactOn = ['created', 'deleted', 'updated', 'rpc.out.Dash.Shadow.Update'];
+      // console.log('ws', msg);
       if (msg.name === 'devices') this.setState({ devices: msg.data });
-      if (['created', 'deleted', 'updated'].includes(msg.name)) wsend(ws, 'list');
+      if (reactOn.includes(msg.name)) wsend(ws, 'list');
       Object.keys(ws.callbacks).forEach(k => ws.callbacks[k](msg));
     };
     this.state = { ws, devices: [] };

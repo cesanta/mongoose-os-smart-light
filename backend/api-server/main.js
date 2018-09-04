@@ -21,7 +21,7 @@ const dashReconnect = () => {
   ws.on('message', (data) => {
     const msg = JSON.parse(data);
     console.log('Dash message:', data);
-    Object.keys(wsclients[msg.id] || {}).forEach(connectionID => {
+    Object.keys(wsclients[msg.id] || {}).forEach((connectionID) => {
       console.log(msg.id, connectionID);
       wsclients[msg.id][connectionID].send(data);
     });
@@ -30,7 +30,7 @@ const dashReconnect = () => {
 dashReconnect();
 
 const getCookie = (name, cookie) => {
-  const value = `; ${cookie}`, parts = value.split(`; ${name}=`);
+  const parts = `; ${cookie}`.split(`; ${name}=`);
   return parts.length === 2 ? parts.pop().split(';').shift() : undefined;
 };
 
