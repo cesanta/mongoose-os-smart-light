@@ -1,10 +1,5 @@
 {
-  "admin_users": [
-    "email_admin"
-  ],
-  "db": "/data/dash_db.json",
-  "log_dir": "/data/logs/dash",
+  "dir": "/data",
   "email_auth": true,
-  "add": "127.0.0.1:8001",
   "web_root": "/web_root"
 }
