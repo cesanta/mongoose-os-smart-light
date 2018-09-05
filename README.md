@@ -106,7 +106,7 @@ user switches the lights on/off. Also note that if the device comes online,
 it synchronises with the shadow, switching on/off according to the
 `desired.on` setting.
 
-<video src="media/app1.mp4" width="320" height="200" controls preload></video>
+![](media/app1.gif)
 
 
 ## Backend
