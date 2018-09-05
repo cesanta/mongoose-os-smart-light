@@ -69,6 +69,15 @@ TBD
    configuration immune to factory reset and OTA. The only way to re-configure
    these settings is to reflash the device, or remove `conf5.json`.
 
+10. "Ship" a device to a "customer". Start a browser on your mobile app,
+   open http://YOUR_WORKSTATION_IP:8008. Press on the "Add device" button,
+   and follow provisioning instructions.
+
+11. When a newly provisioned device appears on the list, switch it on/off.
+
+12. In order to re-provision, press on the "user button" and hold it for
+    more than 3 seconds. That will reset the device to factory defaults.
+    The reset functionality is provided by the `provision` Mongoose OS library.
 
 ## General Architecture
 
@@ -82,6 +91,9 @@ Google Cloud instance, etc.
 Device management backend is mDash (the same that runs on
 https://dash.mongoose-os.com), the frontend is a PWA (progressive web app).
 Both are behind Nginx, which terminates SSL from devices and mobile apps.
+For the sake of simplicity, the SSL certificate management is avoided, and
+this reference plain WebSocket communication rather than WSS. For the
+production, SSL should be turned on.
 
 <img src="media/a1.png" class="mw-100" />
 
@@ -153,6 +165,47 @@ server lists devices on behalf of the mobile app, all shared devices are
 returned back.
 
 ## Mongoose OS - based firmware
+
+The firmware source code lives in [firmware/](https://github.com/cesanta/mongoose-os-smart-light/tree/master/firmware).
+This is a simple Mongoose OS application, that contains a
+[firmware/mos.yml](https://github.com/cesanta/mongoose-os-smart-light/blob/master/firmware/mos.yml) build
+file and [firmware/src/main.c](https://github.com/cesanta/mongoose-os-smart-light/blob/master/firmware/src/main.c) source file.
+
+The bulk of the firmware functionality is provided by the Mongoose OS libraries,
+listed in the `mos.yml` file:
+
+```yml
+libs:
+  - origin: https://github.com/mongoose-os-libs/ca-bundle
+  - origin: https://github.com/mongoose-os-libs/core
+  - origin: https://github.com/mongoose-os-libs/dash
+  - origin: https://github.com/mongoose-os-libs/dns-sd
+  - origin: https://github.com/mongoose-os-libs/http-server
+  - origin: https://github.com/mongoose-os-libs/provision
+  - origin: https://github.com/mongoose-os-libs/rpc-service-config
+  - origin: https://github.com/mongoose-os-libs/rpc-service-fs
+  - origin: https://github.com/mongoose-os-libs/rpc-service-ota
+  - origin: https://github.com/mongoose-os-libs/rpc-service-wifi
+  - origin: https://github.com/mongoose-os-libs/rpc-uart
+  - origin: https://github.com/mongoose-os-libs/ota-http-server
+  - origin: https://github.com/mongoose-os-libs/ota-shadow
+  - origin: https://github.com/mongoose-os-libs/wifi
+```
+
+Also, `mos.yml` file defines custom configuration parameters: the GPIO
+pin number for the light LED, and a boolean setting whether that GPIO pin
+is inverted or not:
+
+```yml
+  - ["smartlight", "o", {title: "My app custom settings"}]
+  - ["smartlight.pin", "i", 2, {title: "Light GPIO pin"}]
+  - ["smartlight.inverted", "b", true, {title: "True for ESP32 & ESP8266"}]
+```
+
+The `main.c` file contains a canonical device shadow logic. It reports
+lights state when connected to the shadow, and reacts on the shadow delta.
+The whole source code is only one page long. It is pretty descriptive and
+easily understood.
 
 
 ## Mobile app
@@ -233,3 +286,19 @@ remove the restriction for the production usage,
 [contact us](https://mongoose-os.com/contact.html) for a production license.
 
 ## Usage statistics and analytics
+
+The API Server receives notifications for all devices from the mDash.
+They get stored in a plain text file, `backend/data/notification.log`, which
+can be used for the further analytics. Multiple options are available,
+for example uploading that data to the one of the well-known analytics
+engines, provided by Google Cloud, Amazon AWS, Microsoft Azure, etc.
+
+Since the particular analytics solution depends on the product, we leave
+it there.
+
+
+## Contact
+
+Please [contact us](https://mongoose-os.com/contact.html) if you would like
+our team to customise this reference for your product. That includes
+customisation of the firmware, the backend, the mobile app.
