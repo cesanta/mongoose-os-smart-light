@@ -131,10 +131,38 @@ returned back.
 
 ## Mobile app
 
-The mobile app is a Progressive Web App (PWA). When first downloaded and run
-on a mobile phone or desktop browser, it generates a unique ID, and sets
-a cookie `app_id`, which is used to authenticate the mobile phone with the
+The mobile app is a Progressive Web App (PWA). It is written in
+[preact](https://preactjs.com/) and [bootstrap](https://getbootstrap.com/).
+The main app logic is in a signle source file, `backend/mobile-app/js/app.jsx`.
+In order to avoid a separate build step, the app uses a prebuilt babel
+transpiler.
+
+When first downloaded and run on a mobile phone or desktop browser,
+an app generates a unique ID and sets an `app_id` cookie. The `app_id`
+cookie is used to authenticate the mobile phone with the
 API server. The API server creates a user on the mDash for that `app_id`.
+Basically, an API server trusts each new connection with a new `app_id`
+that it is a new mobile app client, and creates a user for it. This simple
+authentication schema allows to avoid user login/password step, but
+is also suboptimal, cause it binds a user to a specific device. If,
+for some reason, cookies get cleared, then all devices must be re-paired.
+
+That was done deliberately to skip the user login step, as it is not
+crucial for this reference implementation. Those who want to implement
+password based user auth, can easily do so, for it is well known and understood.
+
+When started, the app creates a WebSocket connection to the API Server, and
+all communication is performed as an exchange of WebSocket messages. Each
+message is an "event", which is a single JSON object with two attributes:
+`name` and `data`. The API Server receives events, and may send events in
+return. There is no request/response pattern, however. The communication
+is "fire and forget" events.
+
+The events sent by the app are:
+
+- `{"name": "list"}` - request to send device list
+- `{"name": "pair", "data":{"id":...}}` - request to pair a device with the app
+
 
 ## Mongoose OS - based firmware
 
