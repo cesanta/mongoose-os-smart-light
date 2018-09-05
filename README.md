@@ -185,6 +185,22 @@ The events sent by the app are:
 
 ## Mongoose OS - based firmware
 
-## Device dashboard
+## mDash management dashboard
+
+mDash is an IoT backend with device management, desinged specifically
+for Mongoose OS - built devices. It is extensively documented at
+https://mongoose-os.com/docs/userguide/dashboard.md.
+
+mDash is distributed by Cesanta as a standalone docker image that could be
+run on-premises, as well as a hosted service https://dash.mongoose-os.com.
+For this reference product, mDash is running standalone.
+
+mDash's job is to terminate all device communication, provide notifications
+and management capabilities - like OTA updates, etc.
+
+mDash can be run anywhere: `docker run mgos/dash`. By default, it has
+a restriction on the maximum number of users (5 maximum). In order to
+remove the restriction for the production usage,
+[contact us](https://mongoose-os.com/contact.html) for production license.
 
 ## Usage statistics and analytics
