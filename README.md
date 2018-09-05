@@ -85,6 +85,21 @@ Both are behind Nginx, which terminates SSL from devices and mobile apps.
 
 <img src="media/a1.png" class="mw-100" />
 
+The mobile app talks with the API server over WebSocket, sending and
+receiving JSON events. Switching the light on/off sends
+`{"name:"on", "data":{"id":.., "on": true/false}}` event. An API server catches it, and modifies the device shadow
+object for the device with corresponding ID: `{"desired": {"on": true/false}}`.
+The device shadow generates a delta, which is sent to a device. A device code
+reacts to the delta, switches the light on or off, and updates the shadow.
+Shadow update clears the delta, and triggers a notification from mDash.
+API server catches the notification, and forwards it to the mobile app. 
+A mobile app reacts, and sets the on/off control according to the device shadow.
+
+That implements a canonic pattern for using a device shadow - the same logic
+can be used with backends like AWS IoT device shadow,
+Microsoft Azure device twin, etc. 
+
+
 ## Backend
 
 The mDash comes pre-configured with a single administrator user `admin`
@@ -94,7 +109,7 @@ The mDash comes pre-configured with a single administrator user `admin`
 docker-compose run dash /dash --config-file /data/dash_config.json --register-user admin admin
 ```
 
-The resulting `backend/data/dash_db.json` mDash database was committed to
+The resulting `backend/data/db.json` mDash database was committed to
 the repo. The API key, automatically created for the admin user, is used
 by the API Server for all API Server <-> mDash communication, and specified
 as the `--token` flag in the `backend/docker-compose.yml` file. Thus,
