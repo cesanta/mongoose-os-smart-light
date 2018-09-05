@@ -87,10 +87,13 @@ Both are behind Nginx, which terminates SSL from devices and mobile apps.
 
 The mobile app talks with the API server over WebSocket, sending and
 receiving JSON events. Switching the light on/off sends
-`{"name:"on", "data":{"id":.., "on": true/false}}` event. An API server catches it, and modifies the device shadow
-object for the device with corresponding ID: `{"desired": {"on": true/false}}`.
+`{"name:"on", "data":{"id":.., "on": true/false}}` event.
+An API server catches it, and talks to mDash to modify the "desired"
+device shadow state for the device with corresponding ID,
+`{"desired": {"on": true/false}}`.
 The device shadow generates a delta, which is sent to a device. A device code
-reacts to the delta, switches the light on or off, and updates the shadow.
+reacts to the delta, switches the light on or off, and updates the shadow,
+setting the "reported" state: `{"reported": {"on": true/false}}`.
 Shadow update clears the delta, and triggers a notification from mDash.
 API server catches the notification, and forwards it to the mobile app. 
 A mobile app reacts, and sets the on/off control according to the device shadow.
