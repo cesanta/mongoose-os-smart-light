@@ -96,7 +96,8 @@ reacts to the delta, switches the light on or off, and updates the shadow,
 setting the "reported" state: `{"reported": {"on": true/false}}`.
 Shadow update clears the delta, and triggers a notification from mDash.
 API server catches the notification, and forwards it to the mobile app. 
-A mobile app reacts, and sets the on/off control according to the device shadow.
+A mobile app reacts, refreshes device list,
+and sets the on/off GUI control according to the device shadow.
 
 That implements a canonic pattern for using a device shadow - the same logic
 can be used with backends like AWS IoT device shadow,
