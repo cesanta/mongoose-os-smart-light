@@ -78,7 +78,7 @@ wsServer.on('connection', (conn, req) => {
     devices.forEach(d => delete (wsclients[d.id] || {})[connectionID]);
   });
 
-  const listDevices = () => callDash('/devices', uauth).then(r => {
+  const listDevices = () => callDash('/devices', uauth).then((r) => {
     devices.forEach(d => delete (wsclients[d.id] || {})[connectionID]);
     devices = r.data;
     devices.sort((a, b) => {

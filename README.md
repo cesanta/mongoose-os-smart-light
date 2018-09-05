@@ -147,6 +147,8 @@ shares a device with the particular mobile app. Therefore, when an API
 server lists devices on behalf of the mobile app, all shared devices are
 returned back.
 
+## Mongoose OS - based firmware
+
 
 ## Mobile app
 
@@ -182,8 +184,29 @@ The events sent by the app are:
 - `{"name": "list"}` - request to send device list
 - `{"name": "pair", "data":{"id":...}}` - request to pair a device with the app
 
+The events sent by the API Server are:
+- `{"name": "list", "data": [...]}` - list of devices, exactly as returned by mDash - see
+   [mDash API](https://mongoose-os.com/docs/userguide/dashboard.md#rest-api-reference).
+   The device object contains device shadow. The GUI toggle button is
+   set according to the `device.shadow.reported.on` property.
+- `{"name": "pair", "data": {"id": ...}}` - sent when a device with a given
+  ID was paired. Pairing means setting `device.shared_with` device property
+  on mDash.
+- All notifications that are sent by mDash to the API Server are forwarded by
+  the API Server to the mobile app for the paired devices. Specifically,
+  the `online`, `offline`, and `rpc.out.Dash.Shadow.Update` notifications
+  trigger device list refresh on the mobile app.
 
-## Mongoose OS - based firmware
+## API Server
+
+The API Server is a simple NodeJS application. All code is in
+[backend/api-server/main.js](https://github.com/cesanta/mongoose-os-smart-light/blob/master/backend/api-server/main.js).
+The API Server opens a permanent WebSocket connection to mDash to
+catch all notifications (see [mDash notifications](https://mongoose-os.com/docs/userguide/dashboard.md#notifications)).
+To respond to the mobile app events, the API Server calls mDash via the
+RESTful API.
+
+![](media/a2.png)
 
 ## mDash management dashboard
 
