@@ -44,7 +44,7 @@ TBD
    mos build --platform YOUR_PLATFORM  # esp32, cc3220, stm32, esp8266
    mos flash
    ```
-8. Register a new device on a management dashboard, obtain access token:
+8. Register a new device on a management dashboard, obtain ID and TOKEN:
    ```
    $ curl -d '{}' -u admin:admin http://YOUR_WORKSTATION_IP:8009/api/v2/devices
    {
@@ -58,8 +58,8 @@ TBD
    username/password `admin/admin`, you should be able to see your new device.
 9. Factory-configure your device, and pre-provision it on a dashboard:
    ```
-   mos config-set --no-reboot device.id=GENERATED_DEVICE_ID
-   mos config-set --no-reboot dash.token=ACCESS_TOKEN
+   mos config-set --no-reboot device.id=ID
+   mos config-set --no-reboot dash.token=TOKEN
    mos config-set --no-reboot dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc
    mos config-set --no-reboot conf_acl=wifi.*,device.*,dash.enable
    mos call FS.Rename '{"src": "conf9.json", "dst": "conf5.json"}'
