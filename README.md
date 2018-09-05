@@ -207,6 +207,19 @@ lights state when connected to the shadow, and reacts on the shadow delta.
 The whole source code is only one page long. It is pretty descriptive and
 easily understood.
 
+The `mgos_app_init()` function sets up shadow handlers:
+
+```c
+enum mgos_app_init_result mgos_app_init(void) {
+  mgos_event_add_handler(MGOS_SHADOW_UPDATE_DELTA, delta_cb, NULL);
+  mgos_event_add_handler(MGOS_SHADOW_CONNECTED, connected_cb, NULL);
+  return MGOS_APP_INIT_SUCCESS;
+}
+```
+
+The `connected_cb()` handler reports current state to the backend.
+The `delta_cb()` catches new delta, applies it, and reports the new state.
+
 
 ## Mobile app
 
