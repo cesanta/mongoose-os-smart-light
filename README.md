@@ -154,7 +154,8 @@ returned back.
 
 The mobile app is a Progressive Web App (PWA). It is written in
 [preact](https://preactjs.com/) and [bootstrap](https://getbootstrap.com/).
-The main app logic is in a signle source file, `backend/mobile-app/js/app.jsx`.
+The main app logic is in a signle source file,
+[backend/mobile-app/js/app.jsx](https://github.com/cesanta/mongoose-os-smart-light/blob/master/backend/mobile-app/js/app.jsx)
 In order to avoid a separate build step, the app uses a prebuilt babel
 transpiler.
 
@@ -171,6 +172,10 @@ for some reason, cookies get cleared, then all devices must be re-paired.
 That was done deliberately to skip the user login step, as it is not
 crucial for this reference implementation. Those who want to implement
 password based user auth, can easily do so, for it is well known and understood.
+
+<video controls="" style="float:right; width: 50%; margin-left: 2em; margin-bottom: 2em;">
+    <source src="media/app1.mp4" type="video/mp4">
+</video>
 
 When started, the app creates a WebSocket connection to the API Server, and
 all communication is performed as an exchange of WebSocket messages. Each
@@ -224,6 +229,6 @@ and management capabilities - like OTA updates, etc.
 mDash can be run anywhere: `docker run mgos/dash`. By default, it has
 a restriction on the maximum number of users (5 maximum). In order to
 remove the restriction for the production usage,
-[contact us](https://mongoose-os.com/contact.html) for production license.
+[contact us](https://mongoose-os.com/contact.html) for a production license.
 
 ## Usage statistics and analytics
