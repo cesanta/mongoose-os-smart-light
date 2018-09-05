@@ -101,7 +101,12 @@ and sets the on/off GUI control according to the device shadow.
 
 That implements a canonic pattern for using a device shadow - the same logic
 can be used with backends like AWS IoT device shadow,
-Microsoft Azure device twin, etc. 
+Microsoft Azure device twin, etc. Note how device shadow changes when
+user switches the lights on/off. Also note that if the device comes online,
+it synchronises with the shadow, switching on/off according to the
+`desired.on` setting.
+
+<video src="media/app1.mp4" width="320" height="200" controls preload></video>
 
 
 ## Backend
@@ -172,10 +177,6 @@ for some reason, cookies get cleared, then all devices must be re-paired.
 That was done deliberately to skip the user login step, as it is not
 crucial for this reference implementation. Those who want to implement
 password based user auth, can easily do so, for it is well known and understood.
-
-<video controls="" style="float:right; width: 50%; margin-left: 2em; margin-bottom: 2em;">
-    <source src="media/app1.mp4" type="video/mp4">
-</video>
 
 When started, the app creates a WebSocket connection to the API Server, and
 all communication is performed as an exchange of WebSocket messages. Each
