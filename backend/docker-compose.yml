@@ -1,5 +1,6 @@
 version: '3'
 services:
+
   nginx:
     image: docker.io/mgos/nginx
     volumes:
@@ -19,9 +20,8 @@ services:
       - ./api-server:/api-server
     ports:
       - 8002:8002
-    # command: node /main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff
-    command: sh -c 'cd /api-server && (test -d node_modules || npm install) && ./node_modules/.bin/supervisor -t -- main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff'
-
+    command: node /main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff
+    # command: sh -c 'cd /api-server && (test -d node_modules || npm install) && ./node_modules/.bin/supervisor -t -- main.js --port 8002 --dash dash:8001 --token 6de9f99d839f1e981138d6ff'
 
   dash:
     image: docker.io/mgos/dash
