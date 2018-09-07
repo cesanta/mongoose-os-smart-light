@@ -52,7 +52,7 @@ const rpc = (func, data, addr) => window.axios({
   transformRequest: data => JSON.stringify(data),
   method: data ? 'post' : 'get',
   url: `http://${addr || 'mongoose-os-smart-light.local'}/rpc/${func}`,
-  timeout: 2000,
+  timeout: 10000,
   data,
 });
 
