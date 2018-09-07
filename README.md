@@ -63,6 +63,7 @@ TBD
    mos config-set --no-reboot dash.server=ws://YOUR_WORKSTATION_IP:8009/api/v2/rpc
    mos config-set --no-reboot conf_acl=wifi.*,device.*,dash.enable
    mos call FS.Rename '{"src": "conf9.json", "dst": "conf5.json"}'
+   mos call Sys.Reboot
    ```
    The `mos config-set` commands generates `conf9.json` file on a device.
    The `mos call FS.Rename` renames it to `conf5.json`, in order to make this
