@@ -11,7 +11,7 @@ dashboard with remote firmware updates, remote management and usage statistics.
 
 This short video demonstrates the use case:
 
-TBD
+[![](https://img.youtube.com/vi/fNrIwCoiazI/0.jpg)](https://www.youtube.com/watch?v=fNrIwCoiazI)
 
 ## Step-by-step usage guide
 
