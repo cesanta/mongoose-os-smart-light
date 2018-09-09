@@ -41,7 +41,7 @@ TBD
    flash the device:
    ```
    cd mongoose-os-smart-light/firmware
-   mos build --platform YOUR_PLATFORM  # esp32, cc3220, stm32, esp8266
+   mos build --platform YOUR_PLATFORM --local --verbose  # esp32, cc3220, stm32, esp8266
    mos flash
    ```
 8. Register a new device on a management dashboard, obtain ID and TOKEN:
