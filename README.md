@@ -13,7 +13,7 @@ dashboard with remote firmware updates, remote management and usage statistics.
 
 This short video demonstrates the use case:
 
-TBD
+[![](https://img.youtube.com/vi/fNrIwCoiazI/0.jpg)](https://www.youtube.com/watch?v=fNrIwCoiazI)
 
 ## Step-by-step usage guide
 
@@ -43,7 +43,7 @@ TBD
    flash the device:
    ```
    cd mongoose-os-smart-light/firmware
-   mos build --platform YOUR_PLATFORM  # esp32, cc3220, stm32, esp8266
+   mos build --platform YOUR_PLATFORM --local --verbose  # esp32, cc3220, stm32, esp8266
    mos flash
    ```
 8. Register a new device on a management dashboard, obtain ID and TOKEN:

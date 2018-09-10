@@ -21,6 +21,11 @@ const dashReconnect = () => {
   ws.on('message', (data) => {
     const msg = JSON.parse(data);
     console.log('Dash message:', data);
+
+    // Store the notification in the log for the further analytics
+    // fs.appendFile('/data/notification.log', data);
+
+    // Forward the notification to the appopriate listening mobile apps
     Object.keys(wsclients[msg.id] || {}).forEach((connectionID) => {
       console.log(msg.id, connectionID);
       wsclients[msg.id][connectionID].send(data);
