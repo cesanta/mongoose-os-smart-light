@@ -1,5 +1,7 @@
 # Full IoT product: smart light on Mongoose OS
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)  [![Gitter](https://badges.gitter.im/cesanta/mongoose-os.svg)](https://gitter.im/cesanta/mongoose-os?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 This repository contains the implementation of the full, functional commercial IoT product under a commercial-friendly Apache 2.0 license.
 It utilises the power of [Mongoose OS](https://mongoose-os.com) and can be used as a reference for creating similar smart products.
 
