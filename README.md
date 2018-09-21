@@ -317,4 +317,4 @@ it there.
 
 Please [contact us](https://mongoose-os.com/contact.html) if you would like
 our team to customise this reference for your product. That includes
-customisation of the firmware, the backend, the mobile app.
+customisation of the firmware, backend and mobile app.
